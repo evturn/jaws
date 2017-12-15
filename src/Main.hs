@@ -1,5 +1,7 @@
 module Main where
 
+import           Jaws
+
 main :: IO ()
 main = do
-  putStrLn "Goodbye world"
+  printContents
