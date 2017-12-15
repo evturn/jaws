@@ -19,7 +19,8 @@ mapWords :: [[String]] -> Mapping
 mapWords xs = foldr go M.empty xs
   where
     go (y:ys:yss) mp = go (ys:yss) (insert y ys mp)
-    go _ mp          = mp
+    go (x:[])     mp = insert x "" mp
+    go []         mp = mp
 
 printContents :: FilePath -> IO ()
 printContents p = do
