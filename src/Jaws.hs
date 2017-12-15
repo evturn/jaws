@@ -12,7 +12,7 @@ insert :: String -> String -> Mapping -> Mapping
 insert x y mp = case M.lookup x mp of
   Nothing  -> M.insert x (M.singleton y 1) mp
   Just smp -> case M.lookup y smp of
-                Nothing -> M.insert x (M.singleton y 1) mp
+                Nothing -> M.insert x (M.insert y 1 smp) mp
                 Just n  -> M.insert x (M.insert y (n + 1) smp) mp
 
 mapWords :: [[String]] -> Mapping
