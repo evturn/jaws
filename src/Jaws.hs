@@ -8,6 +8,15 @@ import           Text.Show.Pretty (ppShow)
 type SubMapping = M.Map String Int
 type Mapping    = M.Map String SubMapping
 
+-- TODO: Randomize key extraction
+extractKey :: SubMapping -> String
+extractKey mp = head $ M.keys mp
+
+build :: String -> String -> Mapping -> String
+build xs k mp = case M.lookup k mp of
+                  Nothing  -> xs ++ " " ++ k
+                  Just smp -> build (xs ++ " " ++ k) (extractKey smp) mp
+
 insert :: String -> String -> Mapping -> Mapping
 insert x y mp = case M.lookup x mp of
   Nothing  -> M.insert x (M.singleton y 1) mp
@@ -24,6 +33,6 @@ mapWords xs = foldr go M.empty xs
 
 printContents :: FilePath -> IO ()
 printContents p = do
-  x <- readFile p
-  xs <- return $ mapWords $ (fmap words) $ lines x
-  putStrLn $ ppShow xs
+  xs <- readFile p
+  mp <- return $ mapWords $ (fmap words) $ lines xs
+  putStrLn $ ppShow ks
