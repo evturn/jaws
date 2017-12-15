@@ -2,33 +2,30 @@ module Jaws where
 
 import           Data.Char        (isAlphaNum, toLower)
 import           Data.List        (lines, words)
+import qualified Data.Map         as M
 import           Text.Show.Pretty (ppShow)
 
-type Actual  = String
-type Cleaned = String
-type Next    = String
-
-data WordMapping a = No
-                   | Mapping a (WordMapping a)
-                   deriving (Eq, Show)
+type Mapping = M.Map String (String, Int)
 
 cleanChar :: Char -> Maybe Char
 cleanChar x
     | isAlphaNum x = Just $ toLower x
     | otherwise    = Nothing
 
-cleanChars :: String -> String
-cleanChars xs = foldr go [] $ (fmap cleanChar xs)
+clean :: String -> String
+clean xs = foldr go [] $ (fmap cleanChar xs)
   where
     go (Just a) b = a : b
     go Nothing b  = b
 
+insert :: String -> String -> Mapping -> Mapping
+insert x y mp = M.insert (clean x) (clean y, 1) mp
 
-mapWords :: [String] -> WordMapping String
-mapWords = go
+mapWords :: [String] -> Mapping
+mapWords xs = go xs M.empty
   where
-    go (x:xs:xss) = Mapping (cleanChars x) (go (xs:xss))
-    go _          = No
+    go (y:ys:yss) mp = go (ys:yss) (insert y ys mp)
+    go _ mp          = mp
 
 printContents :: FilePath -> IO ()
 printContents p = do
