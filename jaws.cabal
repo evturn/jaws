@@ -18,6 +18,7 @@ library
   exposed-modules:     Jaws
   default-language:    Haskell2010
   build-depends:       base >= 4.7 && < 5
+                     , transformers
 
 executable jaws
   hs-source-dirs:      src
@@ -25,3 +26,4 @@ executable jaws
   default-language:    Haskell2010
   build-depends:       base >= 4.7 && < 5
                      , jaws
+                     , transformers

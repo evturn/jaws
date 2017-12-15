@@ -1,9 +1,14 @@
 module Jaws where
 
-import           System.Environment (getArgs)
+import           Control.Monad.IO.Class
+import           Control.Monad.Trans.Maybe
+import           Data.List                 (lines)
+import           System.Environment        (getArgs)
 
-printContents :: IO ()
-printContents = do
-  [x] <- getArgs
-  file <- readFile x
-  putStrLn file
+
+printContents :: FilePath -> IO ()
+printContents p = do
+  x <- readFile p
+  y <- return $ lines x
+  print y
+

@@ -4,4 +4,4 @@ import           Jaws
 
 main :: IO ()
 main = do
-  printContents
+  putStrLn "Ok, sure"
