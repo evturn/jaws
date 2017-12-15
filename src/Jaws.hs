@@ -18,11 +18,19 @@ clean xs = foldr go [] $ (fmap cleanChar xs)
     go (Just a) b = a : b
     go Nothing b  = b
 
-insert :: String -> String -> Mapping -> Mapping
-insert x y mp = M.insert (clean x) (clean y, 1) mp
+insert' :: String -> String -> Int -> Mapping -> Mapping
+insert' x y n mp = M.insert (clean x) (clean y, n) mp
 
-mapWords :: [String] -> Mapping
-mapWords xs = go xs M.empty
+inc :: (String, Int) -> (String, Int)
+inc (x, n) = (x, n + 1)
+
+insert :: String -> String -> Mapping -> Mapping
+insert x y mp = case M.lookup (clean x) mp of
+                  Nothing      -> insert' x y 1 mp
+                  Just (x', n) -> insert' x y (n + 1) mp
+
+mapWords :: [[String]] -> Mapping
+mapWords xs = foldr go M.empty xs
   where
     go (y:ys:yss) mp = go (ys:yss) (insert y ys mp)
     go _ mp          = mp
@@ -30,6 +38,5 @@ mapWords xs = go xs M.empty
 printContents :: FilePath -> IO ()
 printContents p = do
   x <- readFile p
-  y <- return $ fmap (mapWords . words) $ lines x
-  putStrLn $ ppShow y
-
+  xs <- return $ mapWords $ (fmap words) $ lines x
+  putStrLn $ ppShow xs
