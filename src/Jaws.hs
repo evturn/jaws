@@ -7,23 +7,32 @@ import           Data.List                 (lines, words)
 import           System.Environment        (getArgs)
 import           Text.Show.Pretty          (ppShow)
 
-type WordMapping = (String, String, Int)
+type Actual  = String
+type Cleaned = String
+type Next    = String
+
+data WordMapping = Mapping Cleaned (Actual, Next)
+  deriving (Eq, Show)
+
 
 cleanChar :: Char -> Maybe Char
 cleanChar x
     | isAlphaNum x = Just $ toLower x
     | otherwise    = Nothing
 
-cleanChars :: String -> String
+cleanChars :: String -> Cleaned
 cleanChars xs = foldr go [] $ (fmap cleanChar xs)
   where
     go (Just a) b = a : b
     go Nothing b  = b
 
+runClean :: String -> String -> WordMapping
+runClean xs ys = Mapping (cleanChars xs) (xs, cleanChars ys)
+
 mapWords :: [String] -> [WordMapping]
 mapWords = go
   where
-    go (x:xs:xss) = (x, xs, 1) : mapWords xss
+    go (x:xs:xss) = runClean x xs : mapWords (xs:xss)
     go _          = []
 
 printContents :: FilePath -> IO ()
