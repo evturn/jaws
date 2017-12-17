@@ -36,14 +36,14 @@ mapWords xs = foldr go M.empty xs
     go (x:[])     mp = insert x "" mp
     go []         mp = mp
 
-mapFromMaybe :: Maybe SubMapping -> SubMapping
-mapFromMaybe = fromMaybe M.empty
-
 getSubmap :: String -> Mapping -> Maybe SubMapping
 getSubmap str mp = M.lookup str mp
 
-toPool :: Maybe SubMapping -> [String]
-toPool smp = foldr go [] $ M.toList (mapFromMaybe smp)
+mapFromMaybe :: Maybe SubMapping -> SubMapping
+mapFromMaybe = fromMaybe M.empty
+
+getSelections :: Maybe SubMapping -> [String]
+getSelections smp = foldr go [] $ M.toList (mapFromMaybe smp)
   where
     go (k, v) xs = xs ++ replicate v k
 
@@ -53,9 +53,10 @@ distOfSubmap (Just smps) = sum $ M.elems smps
 
 printContents :: FilePath -> IO ()
 printContents p = do
-  xs  <- readFile p
-  mp  <- return $ mapWords $ (fmap words) $ lines xs
-  smp <- return $ getSubmap "started" mp
-  re  <- return $ distOfSubmap smp
-  pool <- return $ toPool smp
-  putStrLn $ ppShow pool
+  xs    <- readFile p
+  mp    <- return $ mapWords $ (fmap words) $ lines xs
+  smp   <- return $ getSubmap "started" mp
+  num   <- return $ distOfSubmap smp
+  pool  <- return $ getSelections smp
+  index <- getRandomInt num
+  putStrLn $ ppShow index
