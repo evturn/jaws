@@ -3,6 +3,7 @@ module Jaws where
 import           Data.Char        (isAlphaNum, toLower)
 import           Data.List        (lines, words)
 import qualified Data.Map         as M
+import           Data.Maybe       (fromMaybe)
 import           System.Random
 import           Text.Show.Pretty (ppShow)
 
@@ -35,8 +36,16 @@ mapWords xs = foldr go M.empty xs
     go (x:[])     mp = insert x "" mp
     go []         mp = mp
 
+mapFromMaybe :: Maybe SubMapping -> SubMapping
+mapFromMaybe = fromMaybe M.empty
+
 getSubmap :: String -> Mapping -> Maybe SubMapping
 getSubmap str mp = M.lookup str mp
+
+toPool :: Maybe SubMapping -> [String]
+toPool smp = foldr go [] $ M.toList (mapFromMaybe smp)
+  where
+    go (k, v) xs = xs ++ replicate v k
 
 distOfSubmap :: Maybe SubMapping -> Int
 distOfSubmap Nothing     = 0
@@ -46,6 +55,7 @@ printContents :: FilePath -> IO ()
 printContents p = do
   xs  <- readFile p
   mp  <- return $ mapWords $ (fmap words) $ lines xs
-  smp <- return $ getSubmap "to" mp
+  smp <- return $ getSubmap "started" mp
   re  <- return $ distOfSubmap smp
-  putStrLn $ ppShow re
+  pool <- return $ toPool smp
+  putStrLn $ ppShow pool
