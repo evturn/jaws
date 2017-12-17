@@ -21,15 +21,18 @@ insert x y mp = case M.lookup x mp of
 getRandomInt :: (Num a, Random a) => a -> IO a
 getRandomInt x = getStdRandom (randomR (0, x - 1))
 
+parseFile :: String -> [[String]]
+parseFile xs = (fmap words) $ lines xs
+
 mapWords :: [[String]] -> Map
-mapWords xs = foldr go M.empty xs
+mapWords = foldr go M.empty
   where
-    go (y:ys:yss) mp = go (ys:yss) (insert y ys mp)
+    go (x:xs:xss) mp = go (xs:xss) (insert x xs mp)
     go (x:[])     mp = insert x "" mp
     go []         mp = mp
 
-getSubmap :: String -> Map -> Maybe SubMap
-getSubmap str mp = M.lookup str mp
+createMap :: String -> Map
+createMap = (mapWords . parseFile)
 
 mapFromMaybe :: Maybe SubMap -> SubMap
 mapFromMaybe = fromMaybe M.empty
@@ -39,20 +42,27 @@ getSelections smp = foldr go [] $ M.toList (mapFromMaybe smp)
   where
     go (k, v) xs = xs ++ replicate v k
 
-distOfSubmap :: Maybe SubMap -> Int
-distOfSubmap Nothing     = 0
-distOfSubmap (Just smps) = sum $ M.elems smps
+sumElems :: Maybe SubMap -> Int
+sumElems Nothing     = 0
+sumElems (Just smps) = sum $ M.elems smps
+
+runBuilder :: (String, String) -> Map -> IO String
+runBuilder state mp = do
+  smp     <- return $ M.lookup (fst state) mp
+  num     <- return $ sumElems smp
+  choices <- return $ getSelections smp
+  index   <- getRandomInt num
+  word    <- return $ choices !! index
+  case word of
+    "" -> return $ snd state
+    _  -> runBuilder (word, (snd state ++ word)) mp
 
 printContents :: FilePath -> IO ()
 printContents p = do
   xs      <- readFile p
-  mp      <- return $ mapWords $ (fmap words) $ lines xs
-  smp     <- return $ getSubmap "started" mp
-  num     <- return $ distOfSubmap smp
-  choices <- return $ getSelections smp
-  index   <- getRandomInt num
-  word    <- return $ choices !! index
-  putStrLn $ ppShow word
+  mp      <- return $ createMap xs
+  str <- runBuilder ("started", "") mp
+  putStrLn $ ppShow str
 
 -- TODO recursively execute this pattern:
 --
