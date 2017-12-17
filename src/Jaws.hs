@@ -46,6 +46,13 @@ sumElems :: Maybe SubMap -> Int
 sumElems Nothing     = 0
 sumElems (Just smps) = sum $ M.elems smps
 
+getInitValues :: Map -> [String]
+getInitValues mp = M.foldr go [] mp
+  where
+    go smp ks = case M.notMember "" smp of
+                  True  -> (M.keys smp) ++ ks
+                  False -> ks
+
 runBuilder :: (String, String) -> Map -> IO String
 runBuilder state mp = do
   smp     <- return $ M.lookup (fst state) mp
@@ -55,27 +62,14 @@ runBuilder state mp = do
   word    <- return $ choices !! index
   case word of
     "" -> return $ snd state
-    _  -> runBuilder (word, (snd state ++ word)) mp
+    _  -> runBuilder (word, (snd state ++ " " ++ word)) mp
 
 printContents :: FilePath -> IO ()
 printContents p = do
-  xs      <- readFile p
-  mp      <- return $ createMap xs
-  str <- runBuilder ("started", "") mp
+  xs    <- readFile p
+  mp    <- return $ createMap xs
+  seeds <- return $ getInitValues mp
+  index <- getRandomInt (length $ seeds)
+  seed  <- return $ seeds !! index
+  str   <- runBuilder (seed, seed) mp
   putStrLn $ ppShow str
-
--- TODO recursively execute this pattern:
---
--- build :: String -> String -> Mapping -> String
---
--- submap     <- return $ getSubmap str mp
--- number     <- return $ distOfSubmap submap
--- selections <- return $ getSelections submap
---
--- Later inside IO:
--- index      <- getRandomInt number
--- word       <- return $ choices !! index
---
--- Recursive call:
--- build sentence word mp
-
