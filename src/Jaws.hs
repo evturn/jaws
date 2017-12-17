@@ -3,6 +3,7 @@ module Jaws where
 import           Data.Char        (isAlphaNum, toLower)
 import           Data.List        (lines, words)
 import qualified Data.Map         as M
+import           System.Random
 import           Text.Show.Pretty (ppShow)
 
 type SubMapping = M.Map String Int
@@ -24,6 +25,9 @@ insert x y mp = case M.lookup x mp of
                 Nothing -> M.insert x (M.insert y 1 smp) mp
                 Just n  -> M.insert x (M.insert y (n + 1) smp) mp
 
+getRandomInt :: (Num a, Random a) => a -> IO a
+getRandomInt x = getStdRandom (randomR (0, x - 1))
+
 mapWords :: [[String]] -> Mapping
 mapWords xs = foldr go M.empty xs
   where
@@ -35,4 +39,4 @@ printContents :: FilePath -> IO ()
 printContents p = do
   xs <- readFile p
   mp <- return $ mapWords $ (fmap words) $ lines xs
-  putStrLn $ ppShow ks
+  putStrLn $ ppShow mp
