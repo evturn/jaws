@@ -5,7 +5,7 @@ import           Data.List        (lines, nub, words)
 import qualified Data.Map         as M
 import           Data.Maybe       (fromMaybe)
 import           System.Random
-import           Text.Show.Pretty (ppShow)
+import           Text.Show.Pretty (pPrint)
 
 type Mapping a = M.Map String a
 type Map       = Mapping SubMap
@@ -81,4 +81,4 @@ printContents p = do
   mp    <- return $ createMap xs
   state <- getInitState mp
   str   <- runBuilder state mp
-  putStrLn $ ppShow str
+  pPrint str
