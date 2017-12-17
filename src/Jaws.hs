@@ -10,14 +10,20 @@ import           Text.Show.Pretty (ppShow)
 type SubMapping = M.Map String Int
 type Mapping    = M.Map String SubMapping
 
--- TODO: Randomize key extraction
-extractKey :: SubMapping -> String
-extractKey mp = head $ M.keys mp
-
-build :: String -> String -> Mapping -> String
-build xs k mp = case M.lookup k mp of
-                  Nothing  -> xs ++ " " ++ k
-                  Just smp -> build (xs ++ " " ++ k) (extractKey smp) mp
+-- TODO recursively execute this pattern:
+--
+-- build :: String -> String -> Mapping -> String
+--
+-- submap     <- return $ getSubmap str mp
+-- number     <- return $ distOfSubmap submap
+-- selections <- return $ getSelections submap
+--
+-- Later inside IO:
+-- index      <- getRandomInt number
+-- word       <- return $ choices !! index
+--
+-- Recursive call:
+-- build sentence word mp
 
 insert :: String -> String -> Mapping -> Mapping
 insert x y mp = case M.lookup x mp of
@@ -53,10 +59,11 @@ distOfSubmap (Just smps) = sum $ M.elems smps
 
 printContents :: FilePath -> IO ()
 printContents p = do
-  xs    <- readFile p
-  mp    <- return $ mapWords $ (fmap words) $ lines xs
-  smp   <- return $ getSubmap "started" mp
-  num   <- return $ distOfSubmap smp
-  pool  <- return $ getSelections smp
-  index <- getRandomInt num
-  putStrLn $ ppShow index
+  xs      <- readFile p
+  mp      <- return $ mapWords $ (fmap words) $ lines xs
+  smp     <- return $ getSubmap "started" mp
+  num     <- return $ distOfSubmap smp
+  choices <- return $ getSelections smp
+  index   <- getRandomInt num
+  word    <- return $ choices !! index
+  putStrLn $ ppShow word
