@@ -1,7 +1,9 @@
 module Main where
 
 import           Jaws
+import           System.Environment
 
 main :: IO ()
 main = do
-  putStrLn "Ok, sure"
+  [args] <- getArgs
+  printContents args
