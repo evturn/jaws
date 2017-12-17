@@ -12,11 +12,13 @@ type Map       = Mapping SubMap
 type SubMap    = Mapping Int
 
 insert :: String -> String -> Map -> Map
-insert x y mp = case M.lookup x mp of
-  Nothing  -> M.insert x (M.singleton y 1) mp
-  Just smp -> case M.lookup y smp of
-                Nothing -> M.insert x (M.insert y 1 smp) mp
-                Just n  -> M.insert x (M.insert y (n + 1) smp) mp
+insert k1 k2 mp = case M.lookup k1 mp of
+  Nothing -> M.insert k1 (M.singleton k2 1) mp
+  Just sp -> M.insert k1 (insertSubMap (M.lookup k2 sp) k2 sp) mp
+
+insertSubMap :: Maybe Int -> String -> SubMap -> SubMap
+insertSubMap Nothing  k sp = M.insert k 1 sp
+insertSubMap (Just n) k sp = M.insert k (n + 1) sp
 
 caps :: String -> String
 caps xs = (toUpper . head) xs : tail xs
