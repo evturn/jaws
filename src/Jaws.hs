@@ -35,14 +35,17 @@ mapWords xs = foldr go M.empty xs
     go (x:[])     mp = insert x "" mp
     go []         mp = mp
 
-distOfSubmap :: String -> Mapping -> Int
-distOfSubmap str mp = case M.lookup str mp of
-  Nothing   -> 0
-  Just smps -> sum $ M.elems smps
+getSubmap :: String -> Mapping -> Maybe SubMapping
+getSubmap str mp = M.lookup str mp
+
+distOfSubmap :: Maybe SubMapping -> Int
+distOfSubmap Nothing     = 0
+distOfSubmap (Just smps) = sum $ M.elems smps
 
 printContents :: FilePath -> IO ()
 printContents p = do
-  xs <- readFile p
-  mp <- return $ mapWords $ (fmap words) $ lines xs
-  re <- return $ distOfSubmap "to" mp
+  xs  <- readFile p
+  mp  <- return $ mapWords $ (fmap words) $ lines xs
+  smp <- return $ getSubmap "to" mp
+  re  <- return $ distOfSubmap smp
   putStrLn $ ppShow re
