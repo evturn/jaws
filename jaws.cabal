@@ -1,14 +1,14 @@
 name:                jaws
 version:             0.1.0.0
--- synopsis:
--- description:
-homepage:            https://github.com/evturn/jaws#readme
+synopsis:            First they took his daughter. Now they're coming for him.
+description:         A former CIA agent reluctantly lets his daughter go on a trip
+homepage:            https://github.com/evturn/jaws
 license:             BSD3
 license-file:        LICENSE
 author:              Evan Turner
 maintainer:          ev@evturn.com
 copyright:           Copyright (c) 2017 Evan Turner
-category:            Very Cool
+category:            Text
 build-type:          Simple
 cabal-version:       >=1.10
 extra-source-files:  README.md
@@ -17,13 +17,22 @@ library
   hs-source-dirs:      src
   exposed-modules:     Jaws
   default-language:    Haskell2010
-  build-depends:       base >= 4.7 && < 5
-                     , transformers
+  build-depends:       base
+                     , containers
+                     , pretty-show
+                     , random
 
 executable jaws
   hs-source-dirs:      src
   main-is:             Main.hs
   default-language:    Haskell2010
-  build-depends:       base >= 4.7 && < 5
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N -Werror
+  build-depends:       base
+                     , containers
                      , jaws
-                     , transformers
+                     , pretty-show
+                     , random
+
+source-repository head
+  type:                git
+  location:            https://github.com/evturn/jaws
