@@ -1,11 +1,16 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Jaws where
 
-import           Data.Char        (isAlphaNum, toLower, toUpper)
-import           Data.List        (lines, nub, words)
-import qualified Data.Map         as M
-import           Data.Maybe       (fromMaybe)
+import           Control.Lens
+import qualified Data.ByteString.Lazy.Char8 as Char8
+import           Data.Char                  (isAlphaNum, toLower, toUpper)
+import           Data.List                  (lines, nub, words)
+import qualified Data.Map                   as M
+import           Data.Maybe                 (fromMaybe)
+import           Network.Wreq
 import           System.Random
-import           Text.Show.Pretty (pPrint)
+import           Text.Show.Pretty           (pPrint)
 
 type Mapping a = M.Map String a
 type Map       = Mapping SubMap
@@ -77,10 +82,20 @@ runBuilder state mp = do
     "" -> return $ snd state
     _  -> runBuilder (word, (snd state ++ " " ++ word)) mp
 
-printContents :: FilePath -> IO ()
-printContents p = do
-  xs    <- readFile p
+printContents :: String -> IO ()
+printContents xs = do
   mp    <- return $ createMap xs
   state <- getInitState mp
   str   <- runBuilder state mp
   pPrint str
+
+fromFile :: FilePath -> IO ()
+fromFile p = do
+  xs <- readFile p
+  printContents xs
+
+fromURL :: String -> IO ()
+fromURL url = do
+  r  <- get url
+  xs <- return $ r ^. responseBody
+  printContents (Char8.unpack xs)
