@@ -17,9 +17,11 @@ import           System.Environment
 import           System.Random
 import           Text.Show.Pretty           (pPrint)
 
-type Mapping a = M.Map String a
-type Map       = Mapping SubMap
-type SubMap    = Mapping Int
+type Mapping a    = M.Map String a
+type Map          = Mapping SubMap
+type SubMap       = Mapping Int
+type Accumulator  = String
+type SourceString = String
 
 insert :: String -> String -> Map -> Map
 insert k1 k2 mp = case M.lookup k1 mp of
@@ -46,8 +48,8 @@ mapWords = foldr go M.empty
     go (x:[])     mp = insert x "" mp
     go []         mp = mp
 
-createMap :: String -> Map
-createMap = (mapWords . parseFile)
+createMapping :: String -> Map
+createMapping = (mapWords . parseFile)
 
 getSelections :: Maybe SubMap -> [String]
 getSelections smp = foldr go [] $ M.toList (fromMaybe M.empty smp)
@@ -71,12 +73,22 @@ getInitValue mp = do
   index <- getRandomInt (length $ seeds)
   return $ seeds !! index
 
-getInitState :: Map -> IO (String, String)
+getInitState :: Map -> IO (String, Accumulator)
 getInitState mp = do
   seed <- getInitValue mp
   return (seed, (caps seed))
 
-runBuilder :: (String, String) -> Map -> IO String
+fromFile :: FilePath -> IO String
+fromFile p = do
+  readFile p
+
+fromURL :: String -> IO String
+fromURL url = do
+  r  <- get url
+  xs <- return $ r ^. responseBody
+  return $ Char8.unpack xs
+
+runBuilder :: (String, Accumulator) -> Map -> IO Accumulator
 runBuilder state mp = do
   smp     <- return $ M.lookup (fst state) mp
   num     <- return $ sumElems smp
@@ -87,30 +99,19 @@ runBuilder state mp = do
     "" -> return $ snd state
     _  -> runBuilder (word, (snd state ++ " " ++ word)) mp
 
-printContents :: String -> IO ()
-printContents xs = do
-  mp    <- return $ createMap xs
+runJaws :: Map -> IO String
+runJaws mp = do
   state <- getInitState mp
-  str   <- runBuilder state mp
-  pPrint str
+  runBuilder state mp
 
-fromFile :: FilePath -> IO ()
-fromFile p = do
-  xs <- readFile p
-  printContents xs
-
-fromURL :: String -> IO ()
-fromURL url = do
-  r  <- get url
-  xs <- return $ r ^. responseBody
-  printContents (Char8.unpack xs)
-
-getCommand :: [String] -> (String -> IO (), String)
-getCommand ("file":loc:[]) = (fromFile, loc)
-getCommand (src:loc:[])    = (fromURL, loc)
+getSourceString :: [String] -> IO String
+getSourceString  ("file":loc:[]) = fromFile loc
+getSourceString  (src:loc:[])    = fromURL loc
 
 jaws :: IO ()
 jaws = do
-  xs <- getArgs
-  (f, x) <- return $ getCommand xs
-  f x
+  args   <- getArgs
+  xs     <- getSourceString args
+  mp     <- return $ createMapping xs
+  result <- runJaws mp
+  pPrint result
