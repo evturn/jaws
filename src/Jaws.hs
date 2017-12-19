@@ -1,6 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Jaws where
+module Jaws
+    ( fromFile
+    , fromURL
+    , jaws
+    ) where
 
 import           Control.Lens
 import qualified Data.ByteString.Lazy.Char8 as Char8
@@ -9,6 +13,7 @@ import           Data.List                  (lines, nub, words)
 import qualified Data.Map                   as M
 import           Data.Maybe                 (fromMaybe)
 import           Network.Wreq
+import           System.Environment
 import           System.Random
 import           Text.Show.Pretty           (pPrint)
 
@@ -99,3 +104,13 @@ fromURL url = do
   r  <- get url
   xs <- return $ r ^. responseBody
   printContents (Char8.unpack xs)
+
+getCommand :: [String] -> (String -> IO (), String)
+getCommand ("file":loc:[]) = (fromFile, loc)
+getCommand (src:loc:[])    = (fromURL, loc)
+
+jaws :: IO ()
+jaws = do
+  xs <- getArgs
+  (f, x) <- return $ getCommand xs
+  f x
