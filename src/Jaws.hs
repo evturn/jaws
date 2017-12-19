@@ -20,8 +20,6 @@ import           Text.Show.Pretty           (pPrint)
 type Mapping a    = M.Map String a
 type Map          = Mapping SubMap
 type SubMap       = Mapping Int
-type Accumulator  = String
-type SourceString = String
 
 insert :: String -> String -> Map -> Map
 insert k1 k2 mp = case M.lookup k1 mp of
@@ -73,7 +71,7 @@ getInitValue mp = do
   index <- getRandomInt (length $ seeds)
   return $ seeds !! index
 
-getInitState :: Map -> IO (String, Accumulator)
+getInitState :: Map -> IO (String, String)
 getInitState mp = do
   seed <- getInitValue mp
   return (seed, (caps seed))
@@ -88,7 +86,11 @@ fromURL url = do
   xs <- return $ r ^. responseBody
   return $ Char8.unpack xs
 
-runBuilder :: (String, Accumulator) -> Map -> IO Accumulator
+getSourceString :: [String] -> IO String
+getSourceString  ("file":loc:[]) = fromFile loc
+getSourceString  (src:loc:[])    = fromURL loc
+
+runBuilder :: (String, String) -> Map -> IO String
 runBuilder state mp = do
   smp     <- return $ M.lookup (fst state) mp
   num     <- return $ sumElems smp
@@ -103,10 +105,6 @@ runJaws :: Map -> IO String
 runJaws mp = do
   state <- getInitState mp
   runBuilder state mp
-
-getSourceString :: [String] -> IO String
-getSourceString  ("file":loc:[]) = fromFile loc
-getSourceString  (src:loc:[])    = fromURL loc
 
 jaws :: IO ()
 jaws = do
