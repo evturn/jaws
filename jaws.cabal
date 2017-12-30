@@ -15,9 +15,8 @@ extra-source-files:  README.md
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Jaws
-                     , Data.Jaws
-                     , Text.Jaws
+  exposed-modules:     Jaws.Data
+                     , Jaws.Text
   default-language:    Haskell2010
   build-depends:       base >= 4.7 && < 5
                      , bytestring
