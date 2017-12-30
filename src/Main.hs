@@ -57,9 +57,9 @@ fromURL url = do
   xs <- return $ r ^. responseBody
   return $ Char8.unpack xs
 
-getSourceString :: [String] -> IO String
-getSourceString  ("file":loc:[]) = fromFile loc
-getSourceString  (src:loc:[])    = fromURL loc
+getSourceString :: String -> String -> IO String
+getSourceString  "file" y = fromFile y
+getSourceString  _ y      = fromURL y
 
 runBuilder :: (String, String) -> Map -> IO String
 runBuilder state mp = do
@@ -77,13 +77,14 @@ runJaws mp = do
   state <- getInitState mp
   runBuilder state mp
 
-jaws :: IO ()
-jaws = do
-  args   <- getArgs
-  xs     <- getSourceString args
+jaws :: String -> String -> IO ()
+jaws x s = do
+  xs     <- getSourceString x s
   mp     <- return $ mapping xs
   result <- runJaws mp
   prettyPrint result
 
 main :: IO ()
-main = do jaws
+main = do
+  (t:p:[]) <- getArgs
+  jaws t p
