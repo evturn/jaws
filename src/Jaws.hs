@@ -8,53 +8,22 @@ module Jaws
 
 import           Control.Lens
 import qualified Data.ByteString.Lazy.Char8 as Char8
-import           Data.Char                  (isAlphaNum, toLower, toUpper)
-import           Data.List                  (lines, nub, words)
-import qualified Data.Map                   as M
+import           Data.Jaws
 import           Data.Maybe                 (fromMaybe)
 import           Network.Wreq
 import           System.Environment
 import           System.Random
-import           Text.Show.Pretty           (pPrint)
-
-type Mapping a    = M.Map String a
-type Map          = Mapping SubMap
-type SubMap       = Mapping Int
-
-insert :: String -> String -> Map -> Map
-insert k1 k2 mp = case M.lookup k1 mp of
-  Nothing -> M.insert k1 (M.singleton k2 1) mp
-  Just sp -> M.insert k1 (insertSubMap (M.lookup k2 sp) k2 sp) mp
-
-insertSubMap :: Maybe Int -> String -> SubMap -> SubMap
-insertSubMap Nothing  k sp = M.insert k 1 sp
-insertSubMap (Just n) k sp = M.insert k (n + 1) sp
-
-caps :: String -> String
-caps xs = (toUpper . head) xs : tail xs
+import           Text.Jaws
 
 getRandomInt :: (Num a, Random a) => a -> IO a
 getRandomInt x = getStdRandom (randomR (0, x - 1))
 
-parseFile :: String -> [[String]]
-parseFile xs = (fmap words) $ lines xs
-
-mapWords :: [[String]] -> Map
-mapWords = foldr go M.empty
-  where
-    go (x:xs:xss) mp = go (xs:xss) (insert x xs mp)
-    go (x:[])     mp = insert x "" mp
-    go []         mp = mp
-
-createMapping :: String -> Map
-createMapping = (mapWords . parseFile)
-
-getSelections :: Maybe SubMap -> [String]
+getSelections :: Maybe Submap -> [String]
 getSelections smp = foldr go [] $ M.toList (fromMaybe M.empty smp)
   where
     go (k, v) xs = xs ++ replicate v k
 
-sumElems :: Maybe SubMap -> Int
+sumElems :: Maybe Submap -> Int
 sumElems Nothing     = 0
 sumElems (Just smps) = sum $ M.elems smps
 
@@ -110,6 +79,6 @@ jaws :: IO ()
 jaws = do
   args   <- getArgs
   xs     <- getSourceString args
-  mp     <- return $ createMapping xs
+  mp     <- return $ mapping xs
   result <- runJaws mp
-  pPrint result
+  prettyShow result
