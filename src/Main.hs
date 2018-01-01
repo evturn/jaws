@@ -12,13 +12,10 @@ import qualified Data.ByteString.Lazy.Char8 as Char8
 import qualified Data.Map                   as M
 import           Data.Maybe                 (fromMaybe)
 import           Jaws.Data
+import           Jaws.Internal
 import           Jaws.Text
 import           Network.Wreq
 import           System.Environment
-import           System.Random
-
-getRandomInt :: (Num a, Random a) => a -> IO a
-getRandomInt x = getStdRandom (randomR (0, x - 1))
 
 getSelections :: Maybe Submap -> [String]
 getSelections smp = foldr go [] $ M.toList (fromMaybe M.empty smp)
