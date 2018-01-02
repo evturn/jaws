@@ -23,6 +23,7 @@ library
                      , bytestring
                      , containers
                      , lens
+                     , mtl
                      , pretty-show
                      , random
                      , wreq
