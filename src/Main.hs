@@ -7,34 +7,25 @@ module Main
     , main
     ) where
 
-import           Control.Monad.Reader
-import qualified Data.Map             as M
-import           Data.Maybe           (fromMaybe)
+import qualified Data.Map      as M
 import           Jaws.Data
 import           Jaws.Internal
 import           Jaws.Text
 
+replicateByProbability :: (String, Int) -> [String] -> [String]
+replicateByProbability (k, v) xs = xs ++ replicate v k
+
 getSelections :: Maybe Submap -> [String]
-getSelections smp = foldr go [] $ M.toList (fromMaybe M.empty smp)
-  where
-    go (k, v) xs = xs ++ replicate v k
+getSelections sp = foldr replicateByProbability [] $ toList sp
 
 sumElems :: Maybe Submap -> Int
 sumElems Nothing    = 0
 sumElems (Just sps) = sum $ M.elems sps
 
-seeds :: ReaderT Map [] String
-seeds = ReaderT $ \r -> getSeeds r
-
-getSeedValue :: [String] -> IO String
-getSeedValue sds = do
-  index <- getRandomInt (length $ sds)
-  return $ sds !! index
-
-getInitState :: Map -> IO (String, String)
-getInitState mp = do
-  sds <- return $ getSeeds mp
-  seed <- getSeedValue sds
+getState :: Map -> IO (String, String)
+getState mp = do
+  sds  <- return $ keys' mp
+  seed <- pick sds
   return (seed, (caps seed))
 
 runBuilder :: (String, String) -> Map -> IO String
@@ -48,19 +39,26 @@ runBuilder state mp = do
     "" -> return $ snd state
     _  -> runBuilder (word, (snd state ++ " " ++ word)) mp
 
-run :: String -> IO ()
-run xs = do
+runJaws :: String -> IO ()
+runJaws xs = do
   mp <- return $ mapping xs
-  st <- getInitState mp
+  st <- getState mp
   x  <- runBuilder st mp
   prettyPrint x
 
 jaws :: String -> String -> IO ()
 jaws mtd loc = do
-  xs <- runJaws mtd loc
-  run xs
+  xs <- run mtd loc
+  runJaws xs
 
 main :: IO ()
 main = do
-  xs <- execJaws
-  run xs
+  xs <- exec
+  runJaws xs
+
+readerGetState :: String -> IO (String, String)
+readerGetState xs = do
+  mp    <- return $ fromList xs
+  seeds <- return $ inits mp
+  seed  <- pick seeds
+  return (seed, (caps seed))

@@ -1,15 +1,21 @@
 module Jaws.Data
     ( Map
     , Mapping
-    , getSeeds
     , Submap
+    , fromList
+    , inits
     , insert
     , insertSub
+    , keys'
     , mapping
+    , seedValues
+    , toList
     ) where
 
-import qualified Data.Map  as M
-import           Jaws.Text (prettyShow, wordsByLine)
+import           Control.Monad.Reader
+import qualified Data.Map             as M
+import           Data.Maybe           (fromMaybe)
+import           Jaws.Text            (prettyShow, wordsByLine)
 
 type Mapping' a = M.Map String a
 type Submap     = Mapping' Int
@@ -41,8 +47,23 @@ consInits  k sp ks = case hasSuccessor sp of
   True  -> k : ks
   False -> ks
 
-getSeeds :: Map -> [String]
-getSeeds = M.foldrWithKey consInits []
+keys' :: Map -> [String]
+keys' = M.foldrWithKey consInits []
 
 hasSuccessor :: Submap -> Bool
 hasSuccessor = M.notMember ""
+
+toList :: Maybe Submap -> [(String, Int)]
+toList sp = M.toList (fromMaybe M.empty sp)
+
+fromList :: String -> Map
+fromList = runReaderT mappedValues
+
+inits :: Map -> [String]
+inits = runReaderT seedValues
+
+mappedValues :: ReaderT String (M.Map String) Submap
+mappedValues = ReaderT $ \r -> mapping r
+
+seedValues :: ReaderT Map [] String
+seedValues = ReaderT $ \mp -> keys' mp

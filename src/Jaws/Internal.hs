@@ -9,6 +9,11 @@ import           System.Random
 getRandomInt :: (Num a, Random a) => a -> IO a
 getRandomInt x = getStdRandom (randomR (0, x - 1))
 
+pick :: [String] -> IO String
+pick sds = do
+  index <- getRandomInt (length sds)
+  return $ sds !! index
+
 fromFile :: FilePath -> IO String
 fromFile p = do
   readFile p
@@ -23,12 +28,12 @@ getData :: String -> String -> IO String
 getData  "file" loc = fromFile loc
 getData  _      loc = fromURL loc
 
-execJaws :: IO String
-execJaws = do
+exec :: IO String
+exec = do
   (mtd:loc:[]) <- getArgs
-  runJaws mtd loc
+  run mtd loc
 
-runJaws :: String -> String -> IO String
-runJaws mtd loc = do
+run :: String -> String -> IO String
+run mtd loc = do
   xs <- getData mtd loc
   return xs
