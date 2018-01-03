@@ -22,12 +22,6 @@ sumElems :: Maybe Submap -> Int
 sumElems Nothing    = 0
 sumElems (Just sps) = sum $ M.elems sps
 
-getState :: Map -> IO (String, String)
-getState mp = do
-  sds  <- return $ keys' mp
-  seed <- pick sds
-  return (seed, (caps seed))
-
 runBuilder :: (String, String) -> Map -> IO String
 runBuilder state mp = do
   smp     <- return $ M.lookup (fst state) mp
@@ -56,9 +50,9 @@ main = do
   xs <- exec
   runJaws xs
 
-readerGetState :: String -> IO (String, String)
-readerGetState xs = do
-  mp    <- return $ fromList xs
-  seeds <- return $ inits mp
-  seed  <- pick seeds
+getState :: Map -> IO (String, String)
+getState mp = do
+  sds  <- return $ keys' mp
+  seed <- pick sds
   return (seed, (caps seed))
+

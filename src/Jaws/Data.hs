@@ -2,6 +2,7 @@ module Jaws.Data
     ( Map
     , Mapping
     , Submap
+    , app
     , fromList
     , inits
     , insert
@@ -15,7 +16,8 @@ module Jaws.Data
 import           Control.Monad.Reader
 import qualified Data.Map             as M
 import           Data.Maybe           (fromMaybe)
-import           Jaws.Text            (prettyShow, wordsByLine)
+import           Jaws.Internal
+import           Jaws.Text            (caps, prettyShow, wordsByLine)
 
 type Mapping' a = M.Map String a
 type Submap     = Mapping' Int
@@ -67,3 +69,14 @@ mappedValues = ReaderT $ \r -> mapping r
 
 seedValues :: ReaderT Map [] String
 seedValues = ReaderT $ \mp -> keys' mp
+
+-- app :: Map -> ReaderT Map IO ([String], Map)
+app :: ReaderT Map ((,) [String]) Map
+app = ReaderT $ \mp -> (keys' mp, mp)
+
+readerGetState :: String -> IO (String, String)
+readerGetState xs = do
+  mp    <- return $ fromList xs
+  seeds <- return $ inits mp
+  seed  <- pick seeds
+  return (seed, (caps seed))
