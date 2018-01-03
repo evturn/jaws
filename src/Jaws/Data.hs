@@ -7,7 +7,7 @@ module Jaws.Data
     , inits
     , insert
     , insertSub
-    , keys'
+    , keys
     , mapping
     , seedValues
     , toList
@@ -49,8 +49,8 @@ consInits  k sp ks = case hasSuccessor sp of
   True  -> k : ks
   False -> ks
 
-keys' :: Map -> [String]
-keys' = M.foldrWithKey consInits []
+keys :: Map -> [String]
+keys = M.foldrWithKey consInits []
 
 hasSuccessor :: Submap -> Bool
 hasSuccessor = M.notMember ""
@@ -58,21 +58,29 @@ hasSuccessor = M.notMember ""
 toList :: Maybe Submap -> [(String, Int)]
 toList sp = M.toList (fromMaybe M.empty sp)
 
-fromList :: String -> Map
-fromList = runReaderT mappedValues
+data App s m = App
+    { getSeeds :: s
+    , getMap   :: m
+    } deriving Show
 
+app :: ReaderT String (App [String]) Map
+app = do
+  ReaderT $ \xs -> let mp = mapping xs
+                    in App (keys mp) mp
+
+-- TODO: Discontinue usage of the functions below in other modules and
+--       and remove completely from library.
 inits :: Map -> [String]
 inits = runReaderT seedValues
+
+fromList :: String -> Map
+fromList = runReaderT mappedValues
 
 mappedValues :: ReaderT String (M.Map String) Submap
 mappedValues = ReaderT $ \r -> mapping r
 
 seedValues :: ReaderT Map [] String
-seedValues = ReaderT $ \mp -> keys' mp
-
--- app :: Map -> ReaderT Map IO ([String], Map)
-app :: ReaderT Map ((,) [String]) Map
-app = ReaderT $ \mp -> (keys' mp, mp)
+seedValues = ReaderT $ \mp -> keys mp
 
 readerGetState :: String -> IO (String, String)
 readerGetState xs = do
@@ -80,3 +88,4 @@ readerGetState xs = do
   seeds <- return $ inits mp
   seed  <- pick seeds
   return (seed, (caps seed))
+

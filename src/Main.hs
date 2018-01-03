@@ -52,7 +52,7 @@ main = do
 
 getState :: Map -> IO (String, String)
 getState mp = do
-  sds  <- return $ keys' mp
+  sds  <- return $ keys mp
   seed <- pick sds
   return (seed, (caps seed))
 
