@@ -2,22 +2,17 @@ module Jaws.Data
     ( Map
     , Mapping
     , Submap
-    , app
-    , fromList
-    , inits
     , insert
     , insertSub
     , keys
     , mapping
-    , seedValues
     , toList
     ) where
 
-import           Control.Monad.Reader
-import qualified Data.Map             as M
-import           Data.Maybe           (fromMaybe)
+import qualified Data.Map      as M
+import           Data.Maybe    (fromMaybe)
 import           Jaws.Internal
-import           Jaws.Text            (caps, prettyShow, wordsByLine)
+import           Jaws.Text     (caps, prettyShow, wordsByLine)
 
 type Mapping' a = M.Map String a
 type Submap     = Mapping' Int
@@ -57,35 +52,3 @@ hasSuccessor = M.notMember ""
 
 toList :: Maybe Submap -> [(String, Int)]
 toList sp = M.toList (fromMaybe M.empty sp)
-
-data App s m = App
-    { getSeeds :: s
-    , getMap   :: m
-    } deriving Show
-
-app :: ReaderT String (App [String]) Map
-app = do
-  ReaderT $ \xs -> let mp = mapping xs
-                    in App (keys mp) mp
-
--- TODO: Discontinue usage of the functions below in other modules and
---       and remove completely from library.
-inits :: Map -> [String]
-inits = runReaderT seedValues
-
-fromList :: String -> Map
-fromList = runReaderT mappedValues
-
-mappedValues :: ReaderT String (M.Map String) Submap
-mappedValues = ReaderT $ \r -> mapping r
-
-seedValues :: ReaderT Map [] String
-seedValues = ReaderT $ \mp -> keys mp
-
-readerGetState :: String -> IO (String, String)
-readerGetState xs = do
-  mp    <- return $ fromList xs
-  seeds <- return $ inits mp
-  seed  <- pick seeds
-  return (seed, (caps seed))
-
