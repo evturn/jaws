@@ -14,11 +14,11 @@ import           Data.Maybe    (fromMaybe)
 import           Jaws.Internal
 import           Jaws.Text     (caps, prettyShow, wordsByLine)
 
-type Mapping' a = M.Map String a
-type Submap     = Mapping' Int
-type Map        = Mapping' Submap
+type MP a   = M.Map String a
+type Submap = MP Int
+type Map    = MP Submap
 
-newtype Mapping a = Mapping (Mapping' a)
+newtype Mapping a = Mapping (MP a)
 
 instance Show a => Show (Mapping a) where
   show = prettyShow
