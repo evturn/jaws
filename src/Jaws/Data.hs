@@ -13,15 +13,7 @@ import qualified Data.Map      as M
 import           Data.Maybe    (fromMaybe)
 import           Jaws.Internal
 import           Jaws.Text     (caps, prettyShow, wordsByLine)
-
-type MP a   = M.Map String a
-type Submap = MP Int
-type Map    = MP Submap
-
-newtype Mapping a = Mapping (MP a)
-
-instance Show a => Show (Mapping a) where
-  show = prettyShow
+import           Jaws.Types
 
 insertSub :: Maybe Int -> String -> Submap -> Submap
 insertSub Nothing  k sp = M.insert k 1 sp
