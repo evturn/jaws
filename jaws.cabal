@@ -17,7 +17,9 @@ library
   hs-source-dirs:      src
   exposed-modules:     Jaws.Data
                      , Jaws.Text
+                     , Jaws.State
   other-modules:       Jaws.Internal
+                     , Jaws.Types
   default-language:    Haskell2010
   build-depends:       base >= 4.7 && < 5
                      , bytestring
@@ -26,6 +28,7 @@ library
                      , mtl
                      , pretty-show
                      , random
+                     , transformers
                      , wreq
 
 executable jaws
