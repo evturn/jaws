@@ -2,17 +2,10 @@ module Jaws.Types
     ( Map
     , Mapping
     , Submap
-    , BuilderS
-    , BuilderT
-    , BuilderA
-    )where
+    ) where
 
 import qualified Data.Map  as M
 import           Jaws.Text (prettyShow)
-
-type BuilderS = [Char]
-type BuilderT = ([Char], BuilderS)
-type BuilderA = [BuilderS]
 
 type MP a     = M.Map String a
 type Map      = MP Submap
