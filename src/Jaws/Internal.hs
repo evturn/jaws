@@ -1,4 +1,11 @@
-module Jaws.Internal where
+module Jaws.Internal
+    ( exec
+    , fromFile
+    , fromURL
+    , getRandomInt
+    , pick
+    , run
+    ) where
 
 import           Control.Lens               hiding (mapping)
 import qualified Data.ByteString.Lazy.Char8 as Char8
