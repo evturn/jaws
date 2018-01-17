@@ -2,24 +2,21 @@ module Jaws.State where
 
 import           Jaws.Data     (Map, Submap, getSub, keys, mapping,
                                 probabilities, subToList, subValues)
-import           Jaws.Internal (getRandomInt, pick)
 import           Jaws.Text     (caps)
+import           System.Random (Random, getStdRandom, randomR)
+
+emptyState :: (String, String)
+emptyState = (mempty, mempty)
 
 getState :: String -> (String, String)
 getState = (,) <$> id <*> caps
-
-emptyS :: (String, String)
-emptyS = (mempty, mempty)
-
-sumSubValues :: Submap -> Int
-sumSubValues sub = sum $ subValues sub
 
 mergeState :: (String, String) -> (String, String) -> (String, String)
 mergeState sta sta' = (fst sta', (snd sta) ++ " " ++ (snd sta'))
 
 putState :: [String] -> (String, String) -> IO (String, String)
 putState seeds sta = do
-  seed <- pick seeds
+  seed <- randomSelect seeds
   sta' <- return $ getState seed
   case sta of
     ("", "") -> return sta'
@@ -27,20 +24,23 @@ putState seeds sta = do
 
 buildState :: [String] -> (String, String) -> Map -> IO String
 buildState seeds sta mp = do
-  sub        <- return $ getSub (fst sta) mp
-  total      <- return $ sumSubValues sub
-  selections <- return $ probabilities sub
-  index      <- getRandomInt total
-  word       <- return $ selections !! index
+  sub  <- return $ getSub (fst sta) mp
+  word <- randomSelect $ probabilities sub
   case word of
     "" -> return $ snd sta
     _  -> buildState seeds (word, (snd sta ++ " " ++ word)) mp
 
-start :: String -> IO ()
-start path = do
-  xs    <- readFile path
+start :: String -> IO String
+start xs = do
   mp    <- return $ mapping xs
   seeds <- return $ keys mp
-  sta   <- putState seeds emptyS
-  st    <- buildState seeds sta mp
-  print st
+  sta   <- putState seeds emptyState
+  buildState seeds sta mp
+
+randomIntTo :: (Num a, Random a) => a -> IO a
+randomIntTo x = getStdRandom (randomR (0, x - 1))
+
+randomSelect :: [String] -> IO String
+randomSelect words = do
+  index <- randomIntTo (length words)
+  return $ words !! index
