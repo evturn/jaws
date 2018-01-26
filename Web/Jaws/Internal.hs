@@ -1,6 +1,5 @@
 module Web.Jaws.Internal
-    ( exec
-    , run
+    ( run
     ) where
 
 import           Control.Lens               hiding (mapping)
@@ -17,11 +16,6 @@ fromURL url = do
 getData :: String -> String -> IO String
 getData  "file" loc = readFile loc
 getData  _      loc = fromURL loc
-
-exec :: IO String
-exec = do
-  (mtd:loc:[]) <- getArgs
-  run mtd loc
 
 run :: String -> String -> IO String
 run mtd loc = do
