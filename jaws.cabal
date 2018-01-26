@@ -1,45 +1,38 @@
 name:                jaws
-version:             0.1.0.0
-synopsis:            First they took his daughter. Now they're coming for him.
-description:         A former CIA agent reluctantly lets his daughter go on a trip
+version:             0.1.1.0
+synopsis:            His daughter was taken. He has 96 hours to get her back.
+description:         Divorced and almost retired, former CIA agent Bryan Mills,
+                     struggles to spend more time with his only daughter, the 
+                     17-year-old lively Kim, yearning to bridge the gap between 
+                     them. However, when Mills reluctantly gives his permission 
+                     to let Kim and her friend Amanda travel to Paris, his fears
+                     will be justified as the two naive girls will get kidnapped 
+                     on the same afternoon of their arrival. Now, the solitary 
+                     seasoned veteran has less than 96 hours to rescue his 
+                     daughter, and the clock is ticking. Can Mills make it 
+                     against the well-prepared kidnappers?
 homepage:            https://github.com/evturn/jaws
 license:             BSD3
 license-file:        LICENSE
 author:              Evan Turner
 maintainer:          ev@evturn.com
-copyright:           Copyright (c) 2017 Evan Turner
-category:            Text
+copyright:           Copyright (c) 2018 Evan Turner
+category:            Web
 build-type:          Simple
 cabal-version:       >=1.10
 extra-source-files:  README.md
 
 library
-  hs-source-dirs:      src
-  exposed-modules:     Jaws.Data
-                     , Jaws.Text
-                     , Jaws.State
-  other-modules:       Jaws.Internal
-                     , Jaws.Types
+  exposed-modules:     Web.Jaws
+                     , Web.Jaws.Data
+                     , Web.Jaws.Text
+                     , Web.Jaws.State
+  other-modules:       Web.Jaws.Internal
+                     , Web.Jaws.Types
   default-language:    Haskell2010
   build-depends:       base >= 4.7 && < 5
                      , bytestring
                      , containers
-                     , lens
-                     , mtl
-                     , pretty-show
-                     , random
-                     , transformers
-                     , wreq
-
-executable jaws
-  hs-source-dirs:      src
-  main-is:             Main.hs
-  default-language:    Haskell2010
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
-  build-depends:       base >= 4.7 && < 5
-                     , bytestring
-                     , containers
-                     , jaws
                      , lens
                      , pretty-show
                      , random

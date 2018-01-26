@@ -1,4 +1,4 @@
-module Jaws.Internal
+module Web.Jaws.Internal
     ( exec
     , run
     ) where

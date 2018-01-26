@@ -1,4 +1,4 @@
-module Jaws.Text
+module Web.Jaws.Text
     ( caps
     , prettyPrint
     , prettyShow

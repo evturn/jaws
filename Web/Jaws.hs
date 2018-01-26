@@ -1,12 +1,12 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Main
+module Web.Jaws
     ( jaws
     , main
     ) where
 
-import           Jaws.Internal (exec, run)
-import           Jaws.State    (start)
+import           Web.Jaws.Internal (exec, run)
+import           Web.Jaws.State    (start)
 
 jaws :: String -> String -> IO ()
 jaws mtd loc = do

@@ -1,9 +1,9 @@
-module Jaws.State where
+module Web.Jaws.State where
 
-import           Jaws.Data     (Map, Submap, getSub, keys, mapping,
-                                probabilities, subToList, subValues)
-import           Jaws.Text     (caps)
 import           System.Random (Random, getStdRandom, randomR)
+import           Web.Jaws.Data (Map, Submap, getSub, keys, mapping,
+                                probabilities, subToList, subValues)
+import           Web.Jaws.Text (caps)
 
 emptyState :: (String, String)
 emptyState = (mempty, mempty)

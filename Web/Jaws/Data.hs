@@ -1,4 +1,4 @@
-module Jaws.Data
+module Web.Jaws.Data
     ( Map
     , Mapping
     , Submap
@@ -13,11 +13,11 @@ module Jaws.Data
     , toList
     ) where
 
-import qualified Data.Map      as M
-import           Data.Maybe    (fromMaybe)
-import           Jaws.Internal
-import           Jaws.Text     (caps, prettyShow, wordsByLine)
-import           Jaws.Types
+import qualified Data.Map          as M
+import           Data.Maybe        (fromMaybe)
+import           Web.Jaws.Internal
+import           Web.Jaws.Text     (caps, prettyShow, wordsByLine)
+import           Web.Jaws.Types
 
 insertSub :: Maybe Int -> String -> Submap -> Submap
 insertSub Nothing  k sp = M.insert k 1 sp
