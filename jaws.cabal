@@ -25,17 +25,26 @@ extra-source-files:  README.md
 library
   exposed-modules:     Web.Jaws
                      , Web.Jaws.Data
-                     , Web.Jaws.Text
                      , Web.Jaws.State
+                     , Web.Jaws.Text
+                     , Web.Jaws.Twitter.Authentication
+                     , Web.Jaws.Twitter.Status
   other-modules:       Web.Jaws.Internal
                      , Web.Jaws.Types
   default-language:    Haskell2010
   build-depends:       base >= 4.7 && < 5
                      , bytestring
+                     , case-insensitive
                      , containers
+                     , cron
+                     , http-conduit
                      , lens
+                     , network-uri >= 2.6
                      , pretty-show
                      , random
+                     , text
+                     , twitter-conduit
+                     , twitter-types-lens
                      , wreq
 
 source-repository head
