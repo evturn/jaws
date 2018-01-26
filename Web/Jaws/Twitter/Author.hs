@@ -17,6 +17,7 @@ data Author = Author
     , consumerSecret :: String
     , accessToken    :: String
     , accessSecret   :: String
+    , contentURL     :: String
     } deriving Show
 
 instance FromJSON Author where
@@ -25,29 +26,22 @@ instance FromJSON Author where
     <*> x .: "consumerSecret"
     <*> x .: "accessToken"
     <*> x .: "accessSecret"
+    <*> x .: "contentURL"
 
 instance ToJSON Author where
-  toJSON (Author ck cs at as) = object
+  toJSON (Author ck cs at as cu) = object
     [ "consumerKey"    .= ck
     , "consumerSecret" .= cs
     , "accessToken"    .= at
     , "accessSecret"   .= as
+    , "contentURL"     .= cu
     ]
 
 getJSON :: IO B.ByteString
 getJSON = B.readFile "/Users/ev/src/dev/jaws/env.json"
 
-maybeAuthor :: IO (Maybe Author)
-maybeAuthor = decode <$> getJSON
-
-parseItUp :: IO ()
-parseItUp = do
-  d <- maybeAuthor
-  case d of
-    Nothing -> return ()
-    Just x  -> do
-      val <- authTokens x
-      print val
+author :: IO (Either String Author)
+author = eitherDecode <$> getJSON
 
 authTokens :: Author -> IO (OAuth, Credential)
 authTokens x = do

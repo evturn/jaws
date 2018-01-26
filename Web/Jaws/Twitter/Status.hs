@@ -4,21 +4,27 @@
 module Web.Jaws.Twitter.Status where
 
 import           Control.Lens
-import qualified Data.Text                       as T
-import qualified Data.Text.IO                    as T
-import           Web.Jaws.Twitter.Authentication
+import qualified Data.Text               as T
+import qualified Data.Text.IO            as T
+import           Web.Jaws
+import           Web.Jaws.Twitter.Author
 import           Web.Twitter.Conduit
 import           Web.Twitter.Types.Lens
 
-getTWInfo :: IO TWInfo
-getTWInfo = do
-  (oa, cred) <- getOAuthTokens
+getTWInfo :: Author -> IO TWInfo
+getTWInfo x = do
+  (oa, cred) <- authTokens x
   return $ setCredential oa cred def
 
 updateStatus :: IO ()
 updateStatus = do
-  mgr <- newManager tlsManagerSettings
-  twInfo <- getTWInfo
-  putStrLn $ "Posting..."
-  status <- call twInfo mgr $ update (T.pack "800k likes and I'll eat breakfast.")
-  T.putStrLn $ status ^. statusText
+  x <- author
+  case x of
+    Left _ -> putStrLn "shit."
+    Right a -> do
+      mgr <- newManager tlsManagerSettings
+      twInfo <- getTWInfo a
+      xs <- jaws "url" (contentURL a)
+      putStrLn $ "\nPosting...\n"
+      status <- call twInfo mgr $ update (T.pack xs)
+      T.putStrLn $ status ^. statusText
