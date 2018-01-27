@@ -27,7 +27,6 @@ library
                      , Web.Jaws.Data
                      , Web.Jaws.State
                      , Web.Jaws.Text
-                     , Web.Jaws.Twitter.Authentication
                      , Web.Jaws.Twitter.Author
                      , Web.Jaws.Twitter.Status
   other-modules:       Web.Jaws.Internal

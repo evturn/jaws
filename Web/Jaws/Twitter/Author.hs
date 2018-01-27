@@ -37,11 +37,20 @@ instance ToJSON Author where
     , "contentURL"     .= cu
     ]
 
-getJSON :: IO B.ByteString
-getJSON = B.readFile "/Users/ev/src/dev/jaws/env.json"
+readConfig :: IO B.ByteString
+readConfig = do
+  path <- (++"/src/dev/jaws/env.json") <$> getEnv "HOME"
+  B.readFile path
 
-author :: IO (Either String Author)
-author = eitherDecode <$> getJSON
+getJSON :: IO (Either String [Author])
+getJSON = eitherDecode <$> readConfig
+
+author :: Int -> IO (Either String Author)
+author i = do
+  e <- getJSON
+  case e of
+    Left _   -> return $ Left "well, damn."
+    Right xs -> return $ Right (xs !! i)
 
 authTokens :: Author -> IO (OAuth, Credential)
 authTokens x = do

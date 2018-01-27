@@ -18,7 +18,7 @@ getTWInfo x = do
 
 updateStatus :: IO ()
 updateStatus = do
-  x <- author
+  x <- author 1
   case x of
     Left _ -> putStrLn "shit."
     Right a -> do
