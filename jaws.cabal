@@ -24,6 +24,7 @@ extra-source-files:  README.md
 
 library
   exposed-modules:     Web.Jaws
+                     , Web.Jaws.Cron
                      , Web.Jaws.Data
                      , Web.Jaws.State
                      , Web.Jaws.Text
