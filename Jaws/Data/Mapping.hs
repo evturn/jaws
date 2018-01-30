@@ -1,22 +1,10 @@
-module Web.Jaws.Types.Mapping
-    ( Map
-    , Mapping
-    , Submap
-    , getSub
-    , insert
-    , insertSub
-    , keys
-    , probabilities
-    , mapping
-    , subToList
-    , subValues
-    , toList
-    ) where
+module Jaws.Data.Mapping where
 
-import qualified Data.Map          as M
-import           Data.Maybe        (fromMaybe)
-import           Web.Jaws.Internal
-import           Web.Jaws.Text     (caps, prettyShow, wordsByLine)
+import qualified Data.List          as L
+import qualified Data.Map           as M
+import           Data.Maybe         (fromMaybe)
+import           Jaws.System.Random
+import           Text.Show.Pretty   (pPrint, ppShow)
 
 type MP a     = M.Map String a
 type Map      = MP Submap
@@ -27,17 +15,17 @@ newtype Mapping a = Mapping (MP a)
 instance Show a => Show (Mapping a) where
   show = prettyShow
 
-insert :: String -> String -> Map -> Map
-insert k1 k2 mp = case M.lookup k1 mp of
-  Nothing -> M.insert k1 (M.singleton k2 1) mp
-  Just sp -> M.insert k1 (insertSub (M.lookup k2 sp) k2 sp) mp
-
 mapping :: String -> Map
 mapping = (foldr go M.empty) . wordsByLine
   where
     go (x:xs:xss) mp = go (xs:xss) (insert x xs mp)
     go (x:[])     mp = insert x "" mp
     go []         mp = mp
+
+insert :: String -> String -> Map -> Map
+insert k1 k2 mp = case M.lookup k1 mp of
+  Nothing -> M.insert k1 (M.singleton k2 1) mp
+  Just sp -> M.insert k1 (insertSub (M.lookup k2 sp) k2 sp) mp
 
 insertSub :: Maybe Int -> String -> Submap -> Submap
 insertSub Nothing  k sp = M.insert k 1 sp
@@ -69,3 +57,21 @@ keys = M.foldrWithKey consInits []
 
 toList :: Maybe Submap -> [(String, Int)]
 toList sp = M.toList (fromMaybe M.empty sp)
+
+buildState :: [String] -> (String, String) -> Map -> IO String
+buildState seeds sta mp = do
+  sub  <- return $ getSub (fst sta) mp
+  word <- randomSelect $ probabilities sub
+  case word of
+    "" -> return $ snd sta
+    _  -> buildState seeds (word, (snd sta ++ " " ++ word)) mp
+
+prettyPrint :: Show a => a -> IO ()
+prettyPrint = pPrint
+
+prettyShow :: Show a => a -> String
+prettyShow = ppShow
+
+wordsByLine :: String -> [[String]]
+wordsByLine = (fmap L.words) . L.lines
+

@@ -1,13 +1,13 @@
 {-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Web.Jaws.Twitter.Status where
+module Jaws.Twitter.Status where
 
 import           Control.Lens
-import qualified Data.Text               as T
-import qualified Data.Text.IO            as T
-import           Web.Jaws
-import           Web.Jaws.Twitter.Author
+import qualified Data.Text              as T
+import qualified Data.Text.IO           as T
+import           Jaws.Data
+import           Jaws.Twitter.Author
 import           Web.Twitter.Conduit
 import           Web.Twitter.Types.Lens
 

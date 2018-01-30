@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Web.Jaws.Cron where
+module Jaws.System.Cron where
 
 import           Data.Monoid
 import           System.Cron
@@ -32,3 +32,4 @@ job1 = putStrLn "Job 1"
 
 job2 :: IO ()
 job2 = putStrLn "Job 2"
+

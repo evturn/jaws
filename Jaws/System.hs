@@ -1,9 +1,12 @@
-module Web.Jaws.Internal
-    ( run
-    ) where
+{-# LANGUAGE OverloadedStrings #-}
+
+module Jaws.System where
 
 import           Control.Lens               hiding (mapping)
 import qualified Data.ByteString.Lazy.Char8 as Char8
+import           Data.Monoid
+import           Jaws.System.Cron
+import           Jaws.System.Random
 import           Network.Wreq
 import           System.Environment
 
@@ -17,7 +20,3 @@ getData :: String -> String -> IO String
 getData  "file" loc = readFile loc
 getData  _      loc = fromURL loc
 
-run :: String -> String -> IO String
-run mtd loc = do
-  xs <- getData mtd loc
-  return xs

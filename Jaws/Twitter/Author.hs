@@ -3,7 +3,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
 
-module Web.Jaws.Twitter.Author where
+module Jaws.Twitter.Author where
 
 import           Data.Aeson
 import           Data.Aeson.Types
