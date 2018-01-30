@@ -42,32 +42,21 @@ readCronConfig = do
 getCronJSON :: IO (Either String [Cron])
 getCronJSON = eitherDecode <$> readCronConfig
 
+loadJob :: Cron -> IO ()
 loadJob x = do
   xs <- jaws "url" $ contentURL x
+  print (index x)
   updateStatus (index x)
 
+loadCron :: [Cron] -> IO ()
 loadCron xs = do
-  return $ fmap (\x ->
-    addJob (loadJob x) (T.pack . cron $ x)) xs
-  return ()
+  tids <- execSchedule $ do
+    mapM_ (\x -> addJob (loadJob x) (T.pack . cron $ x)) xs
+  print tids
 
-doIt = do
+runCrons :: IO ()
+runCrons = do
   e <- getCronJSON
   case e of
     Left _   -> putStrLn "no no NO!"
     Right xs -> loadCron xs
-
-
-cronSimmons :: IO ()
-cronSimmons = do
-   tids <- execSchedule $ do
-       addJob job1 "* * * * *"
-       addJob job2 "0 * * * *"
-   print tids
-
-job1 :: IO ()
-job1 = putStrLn "Job 1"
-
-job2 :: IO ()
-job2 = putStrLn "Job 2"
-
