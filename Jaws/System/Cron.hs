@@ -1,24 +1,62 @@
+{-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Jaws.System.Cron where
 
+import           Data.Aeson
+import           Data.Aeson.Types
+import qualified Data.ByteString.Char8 as S8
+import qualified Data.ByteString.Lazy  as B
 import           Data.Monoid
+import qualified Data.Text             as T
+import           Jaws.Data
+import           Jaws.Twitter.Status
 import           System.Cron
+import           System.Environment
+import           Web.Twitter.Conduit
 
-cronaldMcCronald :: IO ()
-cronaldMcCronald = do
-  putStrLn "\nPlease try our salads\n"
-  let Right cs1 = parseCronSchedule "*/2 * 3 * 4,5,6"
-  print $ describe defaultOpts cs1
+data Cron = Cron
+    { index      :: Int
+    , cron       :: String
+    , contentURL :: String
+    } deriving Show
 
-  let Right cs2 = parseCronSchedule "*/2 12 3 * 4,5,6"
-  print $ describe (twentyFourHourFormat <> verbose) cs2
+instance FromJSON Cron where
+  parseJSON (Object x) = Cron
+    <$> x .: "index"
+    <*> x .: "cron"
+    <*> x .: "contentURL"
 
-  let Right cs3 = parseCronSchedule "00 09,14,22 * * *"
-  print $ describe (twentyFourHourFormat <> verbose) cs3
+instance ToJSON Cron where
+  toJSON (Cron i c u) = object
+    [ "index"      .= i
+    , "cron"       .= c
+    , "contentURL" .= u
+    ]
 
-  let Right cs4 = parseCronSchedule "00 00,09,16 * * *"
-  print $ describe (twentyFourHourFormat <> verbose) cs4
+readCronConfig :: IO B.ByteString
+readCronConfig = do
+  path <- (++"/src/dev/jaws/env.json") <$> getEnv "HOME"
+  B.readFile path
+
+getCronJSON :: IO (Either String [Cron])
+getCronJSON = eitherDecode <$> readCronConfig
+
+loadJob x = do
+  xs <- jaws "url" $ contentURL x
+  updateStatus (index x)
+
+loadCron xs = do
+  return $ fmap (\x ->
+    addJob (loadJob x) (T.pack . cron $ x)) xs
+  return ()
+
+doIt = do
+  e <- getCronJSON
+  case e of
+    Left _   -> putStrLn "no no NO!"
+    Right xs -> loadCron xs
+
 
 cronSimmons :: IO ()
 cronSimmons = do

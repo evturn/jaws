@@ -5,7 +5,6 @@ module Jaws.System where
 import           Control.Lens               hiding (mapping)
 import qualified Data.ByteString.Lazy.Char8 as Char8
 import           Data.Monoid
-import           Jaws.System.Cron
 import           Jaws.System.Random
 import           Network.Wreq
 import           System.Environment

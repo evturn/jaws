@@ -21,7 +21,6 @@ putState seeds sta = do
     ("", "") -> return sta'
     _        -> return $ mergeState sta sta'
 
--- Web.Jaws.Text
 caps :: String -> String
 caps xs = (C.toUpper . head) xs : tail xs
 

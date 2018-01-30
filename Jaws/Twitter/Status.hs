@@ -16,9 +16,9 @@ getTWInfo x = do
   (oa, cred) <- authTokens x
   return $ setCredential oa cred def
 
-updateStatus :: IO ()
-updateStatus = do
-  x <- author 1
+updateStatus :: Int -> IO ()
+updateStatus i = do
+  x <- author i
   case x of
     Left _ -> putStrLn "shit."
     Right a -> do
