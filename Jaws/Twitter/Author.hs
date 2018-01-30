@@ -39,8 +39,7 @@ instance ToJSON Author where
 
 readConfig :: IO B.ByteString
 readConfig = do
-  path <- (++"/src/dev/jaws/env.json") <$> getEnv "HOME"
-  B.readFile path
+  B.readFile "./env.json"
 
 getJSON :: IO (Either String [Author])
 getJSON = eitherDecode <$> readConfig

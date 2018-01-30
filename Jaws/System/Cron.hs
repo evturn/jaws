@@ -36,8 +36,7 @@ instance ToJSON Cron where
 
 readCronConfig :: IO B.ByteString
 readCronConfig = do
-  path <- (++"/src/dev/jaws/env.json") <$> getEnv "HOME"
-  B.readFile path
+  B.readFile "./env.json"
 
 getCronJSON :: IO (Either String [Cron])
 getCronJSON = eitherDecode <$> readCronConfig
