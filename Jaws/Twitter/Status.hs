@@ -4,27 +4,57 @@
 module Jaws.Twitter.Status where
 
 import           Control.Lens
+import qualified Data.ByteString.Char8  as S8
 import qualified Data.Text              as T
 import qualified Data.Text.IO           as T
 import           Jaws.Data
 import           Jaws.Twitter.Author
+import           System.Environment
 import           Web.Twitter.Conduit
 import           Web.Twitter.Types.Lens
+
+authTokens :: Author -> IO (OAuth, Credential)
+authTokens x = do
+  ck <- env . consumerKey $ x
+  cs <- env . consumerSecret $ x
+  at <- env . accessToken $ x
+  as <- env . accessSecret $ x
+  let oauth = twitterOAuth
+            { oauthConsumerKey =  ck
+            , oauthConsumerSecret = cs
+            }
+      cred  = Credential
+            [ ("oauth_token", at)
+            , ("oauth_token_secret", as)
+            ]
+  return (oauth, cred)
+
+env :: String -> IO S8.ByteString
+env = (S8.pack <$>) . getEnv
 
 getTWInfo :: Author -> IO TWInfo
 getTWInfo x = do
   (oa, cred) <- authTokens x
   return $ setCredential oa cred def
 
+recur :: Int -> Int -> IO ()
+recur index count = do
+  ea <- eitherAuthor 0
+  case ea of
+    Left e -> putStrLn e
+    Right author -> do
+      content <- getContent (contentURL author)
+      repeatRun content 3
+
 updateStatus :: Int -> IO ()
 updateStatus i = do
-  x <- author i
-  case x of
-    Left _ -> putStrLn "shit."
-    Right a -> do
+  ea <- eitherAuthor i
+  case ea of
+    Left e -> putStrLn e
+    Right author -> do
       mgr <- newManager tlsManagerSettings
-      twInfo <- getTWInfo a
-      xs <- jaws "url" (contentURL a)
+      twInfo <- getTWInfo author
+      xs <- jaws "url" (contentURL author)
       putStrLn $ "\nPosting...\n"
       status <- call twInfo mgr $ update (T.pack xs)
       T.putStrLn $ status ^. statusText

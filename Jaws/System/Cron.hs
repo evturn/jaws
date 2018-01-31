@@ -44,7 +44,6 @@ getCronJSON = eitherDecode <$> readCronConfig
 loadJob :: Cron -> IO ()
 loadJob x = do
   xs <- jaws "url" $ contentURL x
-  print (index x)
   updateStatus (index x)
 
 loadCron :: [Cron] -> IO ()

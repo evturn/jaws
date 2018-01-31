@@ -7,9 +7,7 @@ module Jaws.Twitter.Author where
 
 import           Data.Aeson
 import           Data.Aeson.Types
-import qualified Data.ByteString.Char8 as S8
-import qualified Data.ByteString.Lazy  as B
-import           System.Environment
+import qualified Data.ByteString.Lazy as B
 import           Web.Twitter.Conduit
 
 data Author = Author
@@ -44,28 +42,10 @@ readConfig = do
 getJSON :: IO (Either String [Author])
 getJSON = eitherDecode <$> readConfig
 
-author :: Int -> IO (Either String Author)
-author i = do
-  e <- getJSON
-  case e of
-    Left _   -> return $ Left "well, damn."
-    Right xs -> return $ Right (xs !! i)
+eitherAuthor :: Int -> IO (Either String Author)
+eitherAuthor index = do
+  eas <- getJSON
+  return $ case eas of
+    Left _        -> Left "well, damn."
+    Right authors -> Right (authors !! index)
 
-authTokens :: Author -> IO (OAuth, Credential)
-authTokens x = do
-  ck <- env . consumerKey $ x
-  cs <- env . consumerSecret $ x
-  at <- env . accessToken $ x
-  as <- env . accessSecret $ x
-  let oauth = twitterOAuth
-            { oauthConsumerKey =  ck
-            , oauthConsumerSecret = cs
-            }
-      cred  = Credential
-            [ ("oauth_token", at)
-            , ("oauth_token_secret", as)
-            ]
-  return (oauth, cred)
-
-env :: String -> IO S8.ByteString
-env = (S8.pack <$>) . getEnv
