@@ -37,24 +37,35 @@ getTWInfo x = do
   (oa, cred) <- authTokens x
   return $ setCredential oa cred def
 
-recur :: Int -> Int -> IO ()
-recur index count = do
-  ea <- eitherAuthor 0
-  case ea of
-    Left e -> putStrLn e
-    Right author -> do
-      content <- getContent (contentURL author)
-      repeatRun content 3
+-- recur :: Int -> Int -> IO ()
+-- recur index count = do
+--   ea <- eitherAuthor 0
+--   case ea of
+--     Left e -> putStrLn e
+--     Right author -> do
+--       content <- getContent (contentURL author)
+--       repeatRun content 3
 
-updateStatus :: Int -> IO ()
-updateStatus i = do
-  ea <- eitherAuthor i
-  case ea of
-    Left e -> putStrLn e
-    Right author -> do
-      mgr <- newManager tlsManagerSettings
-      twInfo <- getTWInfo author
-      xs <- jaws "url" (contentURL author)
-      putStrLn $ "\nPosting...\n"
-      status <- call twInfo mgr $ update (T.pack xs)
-      T.putStrLn $ status ^. statusText
+updateWithAuthor :: Int -> IO ()
+updateWithAuthor index = do
+  authors <- getJSON
+  case authors of
+    Left _   -> putStrLn "well, damn."
+    Right as -> runUpdate (as !! index)
+
+runUpdate :: Author -> IO ()
+runUpdate x = do
+  (a, s) <- getAuthorWithStatus x
+  updateStatus (a, s)
+
+getAuthorWithStatus :: Author -> IO (Author, String)
+getAuthorWithStatus author = do
+  status  <- jaws "url" (contentURL author)
+  return (author, status)
+
+updateStatus :: (Author, String) -> IO ()
+updateStatus (author, status) = do
+  mgr    <- newManager tlsManagerSettings
+  twInfo <- getTWInfo author
+  res    <- call twInfo mgr $ update (T.pack status)
+  T.putStrLn $ res ^. statusText

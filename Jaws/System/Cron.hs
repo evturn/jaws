@@ -41,20 +41,19 @@ readCronConfig = do
 getCronJSON :: IO (Either String [Cron])
 getCronJSON = eitherDecode <$> readCronConfig
 
-loadJob :: Cron -> IO ()
-loadJob x = do
-  xs <- jaws "url" $ contentURL x
-  updateStatus (index x)
+twitterJob :: Cron -> IO ()
+twitterJob crn = do
+  updateWithAuthor (index crn)
 
-loadCron :: [Cron] -> IO ()
-loadCron xs = do
+loadJobs :: [Cron] -> IO ()
+loadJobs cs = do
   tids <- execSchedule $ do
-    mapM_ (\x -> addJob (loadJob x) (T.pack . cron $ x)) xs
+    mapM_ (\c -> addJob (twitterJob c) (T.pack . cron $ c)) cs
   print tids
 
 runCrons :: IO ()
 runCrons = do
   e <- getCronJSON
   case e of
-    Left _   -> putStrLn "no no NO!"
-    Right xs -> loadCron xs
+    Left _   -> putStrLn "oh nos!"
+    Right xs -> loadJobs xs

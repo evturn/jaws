@@ -41,11 +41,3 @@ readConfig = do
 
 getJSON :: IO (Either String [Author])
 getJSON = eitherDecode <$> readConfig
-
-eitherAuthor :: Int -> IO (Either String Author)
-eitherAuthor index = do
-  eas <- getJSON
-  return $ case eas of
-    Left _        -> Left "well, damn."
-    Right authors -> Right (authors !! index)
-
