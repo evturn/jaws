@@ -3,6 +3,7 @@
 
 module Jaws.System.Cron where
 
+import           Control.Monad
 import           Data.Aeson
 import           Data.Aeson.Types
 import qualified Data.ByteString.Char8 as S8
@@ -13,6 +14,7 @@ import           Jaws.Data
 import           Jaws.Twitter.Status
 import           System.Cron
 import           System.Environment
+import           System.Posix
 import           Web.Twitter.Conduit
 
 data Cron = Cron
@@ -43,6 +45,7 @@ getCronJSON = eitherDecode <$> readCronConfig
 
 twitterJob :: Cron -> IO ()
 twitterJob crn = do
+  print crn
   updateWithAuthor (index crn)
 
 loadJobs :: [Cron] -> IO ()

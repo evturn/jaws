@@ -1,4 +1,5 @@
 import           Jaws.System.Cron
 
 main :: IO ()
-main = runCrons
+main = do
+  runCrons
