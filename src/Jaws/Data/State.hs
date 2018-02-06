@@ -26,10 +26,10 @@ putState seeds sta = do
 buildState :: [String] -> (String, String) -> Map -> IO String
 buildState seeds sta mp = do
   sub  <- return $ lookupSubmap (fst sta) mp
-  word <- randomSelect $ wordFrequencyList sub
-  case word of
+  wordSelection <- randomSelect $ wordFrequencyList sub
+  case wordSelection of
     "" -> return $ snd sta
-    _  -> buildState seeds (word, (snd sta ++ " " ++ word)) mp
+    _  -> buildState seeds (wordSelection, (snd sta ++ " " ++ wordSelection)) mp
 
 runJaws :: String -> IO String
 runJaws xs = do
