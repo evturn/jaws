@@ -1,40 +1,33 @@
 {-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Jaws.System.Cron where
+module Jaws.System.Schedule where
 
-import           Control.Concurrent
-import           Control.Monad
 import           Data.Aeson
 import           Data.Aeson.Types
-import qualified Data.ByteString.Char8 as S8
-import qualified Data.ByteString.Lazy  as B
+import qualified Data.ByteString.Lazy as B
 import           Data.Monoid
-import qualified Data.Text             as T
-import           Jaws.Data
+import qualified Data.Text            as T
+import           Jaws.Data            (start)
+import           Jaws.Internal        (fetchSource)
+import           Jaws.Twitter.Author
 import           Jaws.Twitter.Status
 import           System.Cron
-import           System.Environment
-import           System.Posix
-import           Web.Twitter.Conduit
 
 data Cron = Cron
-    { index      :: Int
-    , cron       :: String
-    , contentURL :: String
+    { index :: Int
+    , cron  :: String
     } deriving Show
 
 instance FromJSON Cron where
   parseJSON (Object x) = Cron
     <$> x .: "index"
     <*> x .: "cron"
-    <*> x .: "contentURL"
 
 instance ToJSON Cron where
-  toJSON (Cron i c u) = object
+  toJSON (Cron i c) = object
     [ "index"      .= i
     , "cron"       .= c
-    , "contentURL" .= u
     ]
 
 readCronConfig :: IO B.ByteString
@@ -44,19 +37,27 @@ readCronConfig = do
 getCronJSON :: IO (Either String [Cron])
 getCronJSON = eitherDecode <$> readCronConfig
 
-twitterJob :: Cron -> IO ()
-twitterJob crn = do
-  updateWithAuthor (index crn)
-
 getSchedule :: Cron -> T.Text
 getSchedule = T.pack . cron
 
 loadJobs :: Cron -> IO ()
 loadJobs c = do
   tids <- execSchedule $ do
-    addJob (twitterJob c) (getSchedule c)
+    addJob (twitterJob $ index c) (getSchedule c)
   print tids
 
+twitterJob :: Int -> IO ()
+twitterJob index = do
+  authors <- getJSON
+  case authors of
+    Left _   -> putStrLn "well, damn."
+    Right as -> runUpdate (as !! index)
+
+runUpdate :: Author -> IO ()
+runUpdate author = do
+  content <- fetchSource (contentURL author)
+  status  <- start content
+  updateStatus (author, status)
 
 runCrons :: IO ()
 runCrons = do

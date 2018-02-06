@@ -8,7 +8,6 @@ module Jaws.Twitter.Author where
 import           Data.Aeson
 import           Data.Aeson.Types
 import qualified Data.ByteString.Lazy as B
-import           Web.Twitter.Conduit
 
 data Author = Author
     { consumerKey    :: String

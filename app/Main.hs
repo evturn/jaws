@@ -1,4 +1,4 @@
-import           Jaws.System.Cron
+import           Jaws
 
 main :: IO ()
 main = do

@@ -3,7 +3,7 @@ module Jaws.Data.Mapping where
 import qualified Data.List          as L
 import qualified Data.Map           as M
 import           Data.Maybe         (fromMaybe)
-import           Jaws.System.Random
+import           Jaws.System.Random (randomSelect)
 import           Text.Show.Pretty   (pPrint, ppShow)
 
 type MP a     = M.Map String a

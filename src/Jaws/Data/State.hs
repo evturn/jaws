@@ -1,8 +1,8 @@
 module Jaws.Data.State where
 
-import qualified Data.Char          as C
+import           Data.Char          (toUpper)
 import           Data.Monoid
-import           Jaws.System.Random
+import           Jaws.System.Random (randomSelect)
 
 emptyState :: (String, String)
 emptyState = (mempty, mempty)
@@ -22,5 +22,5 @@ putState seeds sta = do
     _        -> return $ mergeState sta sta'
 
 caps :: String -> String
-caps xs = (C.toUpper . head) xs : tail xs
+caps xs = (toUpper . head) xs : tail xs
 

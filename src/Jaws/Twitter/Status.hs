@@ -7,11 +7,13 @@ import           Control.Lens
 import qualified Data.ByteString.Char8  as S8
 import qualified Data.Text              as T
 import qualified Data.Text.IO           as T
-import           Jaws.Data
 import           Jaws.Twitter.Author
 import           System.Environment
 import           Web.Twitter.Conduit
 import           Web.Twitter.Types.Lens
+
+env :: String -> IO S8.ByteString
+env = (S8.pack <$>) . getEnv
 
 authTokens :: Author -> IO (OAuth, Credential)
 authTokens x = do
@@ -29,30 +31,10 @@ authTokens x = do
             ]
   return (oauth, cred)
 
-env :: String -> IO S8.ByteString
-env = (S8.pack <$>) . getEnv
-
 getTWInfo :: Author -> IO TWInfo
 getTWInfo x = do
   (oa, cred) <- authTokens x
   return $ setCredential oa cred def
-
-updateWithAuthor :: Int -> IO ()
-updateWithAuthor index = do
-  authors <- getJSON
-  case authors of
-    Left _   -> putStrLn "well, damn."
-    Right as -> runUpdate (as !! index)
-
-runUpdate :: Author -> IO ()
-runUpdate x = do
-  (a, s) <- getAuthorWithStatus x
-  updateStatus (a, s)
-
-getAuthorWithStatus :: Author -> IO (Author, String)
-getAuthorWithStatus author = do
-  status  <- jaws "url" (contentURL author)
-  return (author, status)
 
 updateStatus :: (Author, String) -> IO ()
 updateStatus (author, status) = do
@@ -60,3 +42,4 @@ updateStatus (author, status) = do
   twInfo <- getTWInfo author
   res    <- call twInfo mgr $ update (T.pack status)
   T.putStrLn $ res ^. statusText
+
