@@ -37,15 +37,6 @@ getTWInfo x = do
   (oa, cred) <- authTokens x
   return $ setCredential oa cred def
 
--- recur :: Int -> Int -> IO ()
--- recur index count = do
---   ea <- eitherAuthor 0
---   case ea of
---     Left e -> putStrLn e
---     Right author -> do
---       content <- getContent (contentURL author)
---       repeatRun content 3
-
 updateWithAuthor :: Int -> IO ()
 updateWithAuthor index = do
   authors <- getJSON

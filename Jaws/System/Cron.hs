@@ -3,6 +3,7 @@
 
 module Jaws.System.Cron where
 
+import           Control.Concurrent
 import           Control.Monad
 import           Data.Aeson
 import           Data.Aeson.Types
@@ -45,18 +46,21 @@ getCronJSON = eitherDecode <$> readCronConfig
 
 twitterJob :: Cron -> IO ()
 twitterJob crn = do
-  print crn
   updateWithAuthor (index crn)
 
-loadJobs :: [Cron] -> IO ()
-loadJobs cs = do
+getSchedule :: Cron -> T.Text
+getSchedule = T.pack . cron
+
+loadJobs :: Cron -> IO ()
+loadJobs c = do
   tids <- execSchedule $ do
-    mapM_ (\c -> addJob (twitterJob c) (T.pack . cron $ c)) cs
+    addJob (twitterJob c) (getSchedule c)
   print tids
+
 
 runCrons :: IO ()
 runCrons = do
   e <- getCronJSON
   case e of
     Left _   -> putStrLn "oh nos!"
-    Right xs -> loadJobs xs
+    Right xs -> mapM_ loadJobs xs
