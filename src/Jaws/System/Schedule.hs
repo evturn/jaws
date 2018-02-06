@@ -8,7 +8,7 @@ import           Data.Aeson.Types
 import qualified Data.ByteString.Lazy as B
 import           Data.Monoid
 import qualified Data.Text            as T
-import           Jaws.Data            (start)
+import           Jaws.Data            (runJaws)
 import           Jaws.Internal        (fetchSource)
 import           Jaws.Twitter.Author
 import           Jaws.Twitter.Status
@@ -56,7 +56,7 @@ twitterJob index = do
 runUpdate :: Author -> IO ()
 runUpdate author = do
   content <- fetchSource (contentURL author)
-  status  <- start content
+  status  <- runJaws content
   updateStatus (author, status)
 
 runCrons :: IO ()
