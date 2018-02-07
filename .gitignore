@@ -1,3 +1,6 @@
 .stack-work
 .DS_Store
 env.json
+run.sh
+run.txt
+run.log
