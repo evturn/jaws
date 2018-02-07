@@ -28,12 +28,11 @@ library
                      , Jaws.Data.Mapping
                      , Jaws.Data.State
                      , Jaws.System
+                     , Jaws.System.IO
                      , Jaws.System.Random
-                     , Jaws.System.Schedule
                      , Jaws.Twitter
                      , Jaws.Twitter.Author
                      , Jaws.Twitter.Status
-  other-modules:       Jaws.Internal
   hs-source-dirs:      src
   default-language:    Haskell2010
   build-depends:       aeson

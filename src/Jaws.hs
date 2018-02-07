@@ -9,7 +9,6 @@ module Jaws
     ) where
 
 import           Jaws.Data
-import           Jaws.Internal (fetchSource)
 import           Jaws.System
 import           Jaws.Twitter
 

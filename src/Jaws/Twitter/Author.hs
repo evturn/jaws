@@ -1,7 +1,4 @@
-{-# LANGUAGE DeriveAnyClass    #-}
-{-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards   #-}
 
 module Jaws.Twitter.Author where
 
@@ -15,6 +12,7 @@ data Author = Author
     , accessToken    :: String
     , accessSecret   :: String
     , contentURL     :: String
+    , index          :: Int
     } deriving Show
 
 instance FromJSON Author where
@@ -24,19 +22,17 @@ instance FromJSON Author where
     <*> x .: "accessToken"
     <*> x .: "accessSecret"
     <*> x .: "contentURL"
+    <*> x .: "index"
 
 instance ToJSON Author where
-  toJSON (Author ck cs at as cu) = object
+  toJSON (Author ck cs at as cu ix) = object
     [ "consumerKey"    .= ck
     , "consumerSecret" .= cs
     , "accessToken"    .= at
     , "accessSecret"   .= as
     , "contentURL"     .= cu
+    , "index"          .= ix
     ]
 
-readConfig :: IO B.ByteString
-readConfig = do
-  B.readFile "./env.json"
-
-getJSON :: IO (Either String [Author])
-getJSON = eitherDecode <$> readConfig
+getJSON :: String -> IO (Either String [Author])
+getJSON filepath = eitherDecode <$> B.readFile filepath

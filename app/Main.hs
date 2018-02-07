@@ -1,5 +1,4 @@
-import           Jaws
+import           Jaws.System.IO
 
 main :: IO ()
-main = do
-  runCrons
+main = execJaws
