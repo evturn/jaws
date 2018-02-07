@@ -8,12 +8,11 @@ import qualified Data.ByteString.Char8  as S8
 import qualified Data.Text              as T
 import qualified Data.Text.IO           as T
 import           Jaws.Twitter.Author
-import           System.Environment
 import           Web.Twitter.Conduit
 import           Web.Twitter.Types.Lens
 
 env :: String -> IO S8.ByteString
-env = (S8.pack <$>) . getEnv
+env = return . S8.pack
 
 authTokens :: Author -> IO (OAuth, Credential)
 authTokens x = do

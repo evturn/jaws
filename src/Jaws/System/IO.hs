@@ -16,9 +16,9 @@ fetchSource url = do
 execJaws :: IO ()
 execJaws = do
   (config:index:[]) <- getArgs
-  authors        <- getJSON config
+  authors           <- getJSON config
   case authors of
-    Left _   -> putStrLn "well, damn."
+    Left e   -> putStrLn e
     Right as -> runUpdate (as !! ((read index) :: Int))
 
 runUpdate :: Author -> IO ()
