@@ -1,9 +1,10 @@
 module Jaws.Data.State where
 
+import           Control.Monad      (replicateM)
 import           Data.Char          (toUpper)
 import           Jaws.Data.Mapping  (Map, keys, lookupSubmap, mapping,
                                      wordFrequencyList)
-import           Jaws.System.Random (randomSelect)
+import           Jaws.System.Random (randomIntFromTo, randomSelect)
 
 initState :: [String] -> IO (String, String)
 initState seeds = do
@@ -28,6 +29,12 @@ build f (x, s) = do
 execState :: [String] -> Map -> IO String
 execState seeds mp = do
   initState seeds >>= (build (nextWord mp))
+
+runRepeat :: Int -> String -> IO [String]
+runRepeat n xs = do
+  mp    <- return $ mapping xs
+  seeds <- return $ keys mp
+  replicateM n $ execState seeds mp
 
 runJaws :: String -> IO String
 runJaws xs = do

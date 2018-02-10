@@ -5,7 +5,7 @@ module Jaws
     , module Jaws.System
     , module Jaws.Twitter
     , jaws
-    , repeatRun
+    , jaws'
     ) where
 
 import           Jaws.Data
@@ -17,8 +17,7 @@ jaws loc = do
   xs <- fetchSource loc
   runJaws xs
 
-repeatRun :: String -> Int -> IO ()
-repeatRun xs n = do
-  res <- mapM runJaws (replicate n xs)
-  print $ foldr (\a b -> b ++ a ++ " ") "" res
-
+jaws' :: Int -> String -> IO [String]
+jaws' n loc = do
+  xs <- fetchSource loc
+  runRepeat n xs
