@@ -15,9 +15,9 @@ import           Jaws.Twitter
 jaws :: String -> IO String
 jaws loc = do
   xs <- fetchSource loc
-  runJaws xs
+  runJaws $ mapping xs
 
-jaws' :: Int -> String -> IO [String]
+jaws' :: Int -> String -> IO String
 jaws' n loc = do
   xs <- fetchSource loc
-  runRepeat n xs
+  runRepeatR n $ mapping xs
