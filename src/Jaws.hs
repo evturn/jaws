@@ -5,19 +5,25 @@ module Jaws
     , module Jaws.System
     , module Jaws.Twitter
     , jaws
-    , jaws'
+    , jawsR
+    , once
     ) where
 
 import           Jaws.Data
 import           Jaws.System
 import           Jaws.Twitter
 
-jaws :: String -> IO String
-jaws loc = do
+once :: String -> IO String
+once loc = do
   xs <- fetchSource loc
   runJaws $ mapping xs
 
-jaws' :: Int -> String -> IO String
-jaws' n loc = do
+jaws :: Int -> String -> IO String
+jaws n loc = do
+  xs <- fetchSource loc
+  runRepeat n $ mapping xs
+
+jawsR :: Int -> String -> IO String
+jawsR n loc = do
   xs <- fetchSource loc
   runRepeatR n $ mapping xs
