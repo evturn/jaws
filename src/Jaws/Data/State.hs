@@ -7,29 +7,32 @@ import           Jaws.Data.Mapping  (Map, keys, lookupSubmap, mapping,
                                      wordFrequencyList)
 import           Jaws.System.Random (randomIntFromTo, randomSelect)
 
-initState :: [String] -> IO (String, String)
-initState seeds = do
-  injectState <$> randomSelect seeds
-
-injectState :: String -> (String, String)
-injectState = (,) <$> id <*> caps
-
-caps :: String -> String
-caps xs = (toUpper . head) xs : tail xs
 
 nextWord :: Map -> String -> IO String
 nextWord mp x = randomSelect $ wordFrequencyList (lookupSubmap x mp)
 
-build :: (String -> IO String) -> (String, String) -> IO String
-build f (x, s) = do
-  y <- f x
-  case y of
-    "" -> return s
-    _  -> build f (y, s ++ " " ++ y)
+build :: (String -> IO String) -> (String, String) -> IO (Maybe String)
+build f (w, s) = do
+  w' <- f w
+  case w' of
+    "" -> if (length $ words s) < 4
+          then return $ Nothing
+          else return $ Just s
+    _  -> build f (w', s ++ " " ++ w')
+
+initState :: [String] -> IO (String, String)
+initState = (fmap getState . randomSelect)
+  where
+    caps xs = (toUpper <$> take 1 xs) ++ drop 1 xs
+    getState = (,) <$> id <*> caps
 
 execState :: [String] -> Map -> IO String
 execState seeds mp = do
-  initState seeds >>= (build (nextWord mp))
+  s <- initState seeds
+  maybeString <- build (nextWord mp) s
+  case maybeString of
+    Nothing -> execState seeds mp
+    Just s' -> return s'
 
 runRepeat :: Int -> Map -> IO String
 runRepeat n mp = do
