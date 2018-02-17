@@ -33,6 +33,7 @@ library
                      , Jaws.Twitter
                      , Jaws.Twitter.Author
                      , Jaws.Twitter.Status
+  other-modules:       Jaws.Data.Debug
   hs-source-dirs:      src
   default-language:    Haskell2010
   build-depends:       aeson
@@ -43,10 +44,12 @@ library
                      , cron
                      , http-conduit
                      , lens
+                     , mtl
                      , network-uri >= 2.6
                      , pretty-show
                      , random
                      , text
+                     , transformers
                      , twitter-conduit
                      , twitter-types-lens
                      , wreq
