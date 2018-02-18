@@ -3,8 +3,7 @@ module Jaws.Data.State where
 import           Control.Monad      (replicateM)
 import           Data.Char          (toUpper)
 import           Data.List          (unwords)
-import           Jaws.Data.Mapping  (Map, keys, lookupSubmap, mapping,
-                                     wordFrequencyList)
+import           Jaws.Data.Mapping  (Map, keys, lookupSubmap, wordFrequencyList)
 import           Jaws.System.Random (randomIntFromTo, randomSelect)
 
 
@@ -26,17 +25,17 @@ initState = (fmap getState . randomSelect)
     caps xs = (toUpper <$> take 1 xs) ++ drop 1 xs
     getState = (,) <$> id <*> caps
 
-execState :: [String] -> Map -> IO String
-execState seeds mp = do
+execBuild :: [String] -> Map -> IO String
+execBuild seeds mp = do
   s <- initState seeds
   maybeString <- build (nextWord mp) s
   case maybeString of
-    Nothing -> execState seeds mp
+    Nothing -> execBuild seeds mp
     Just s' -> return s'
 
 runRepeat :: Int -> Map -> IO String
 runRepeat n mp = do
-  unwords <$> replicateM n (execState (keys mp) mp)
+  unwords <$> replicateM n (execBuild (keys mp) mp)
 
 runRepeatR :: Int -> Map -> IO String
 runRepeatR n mp = do
@@ -45,4 +44,4 @@ runRepeatR n mp = do
 
 runJaws :: Map -> IO String
 runJaws mp = do
-  execState (keys mp) mp
+  execBuild (keys mp) mp
