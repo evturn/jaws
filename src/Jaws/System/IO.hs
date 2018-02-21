@@ -2,7 +2,7 @@ module Jaws.System.IO where
 
 import           Control.Lens               hiding (mapping)
 import qualified Data.ByteString.Lazy.Char8 as Char8
-import           Jaws.Data                  (mapping, runRepeatR)
+import           Jaws.Data                  (keys, mapping, runRepeatR)
 import           Jaws.Twitter
 import           Network.Wreq
 import           System.Environment         (getArgs)
@@ -26,6 +26,6 @@ execJaws = do
 
 runUpdate :: Author -> Int -> IO ()
 runUpdate author count = do
-  content <- fetchSource (contentURL author)
-  status  <- runRepeatR count $ mapping content
+  mp <- mapping <$> fetchSource (contentURL author)
+  status  <- runRepeatR count (keys mp, mp)
   updateStatus (author, status)

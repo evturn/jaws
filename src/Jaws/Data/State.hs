@@ -1,47 +1,56 @@
 module Jaws.Data.State where
 
-import           Control.Monad      (replicateM)
-import           Data.Char          (toUpper)
-import           Data.List          (unwords)
-import           Jaws.Data.Mapping  (Map, keys, lookupSubmap, wordFrequencyList)
-import           Jaws.System.Random (randomIntFromTo, randomSelect)
+import           Control.Monad             (replicateM)
+import           Control.Monad.Trans.Class
+import           Control.Monad.Trans.State
+import           Data.Char                 (toUpper)
+import           Data.List                 (unwords)
+import           Jaws.Data.Mapping         (Map, keys, lookupSubmap,
+                                            wordFrequencyList)
+import           Jaws.System.Random        (randomIntFromTo, randomSelect)
 
+type Seeds     = [String]
+type JawsState = String
 
-nextWord :: Map -> String -> IO String
-nextWord mp x = randomSelect $ wordFrequencyList (lookupSubmap x mp)
+jawsT :: String -> StateT String IO String
+jawsT = return
 
-build :: (String -> IO String) -> (String, String) -> IO (Maybe String)
-build f (w, s) = do
-  w' <- f w
+caps :: String -> String
+caps w = (toUpper <$> take 1 w) ++ drop 1 w
+
+selectFirst :: Seeds -> IO (String, JawsState)
+selectFirst ss = do
+  w <- randomSelect ss
+  (runStateT $ withStateT caps (jawsT w)) w
+
+selectNext :: Map -> String -> IO String
+selectNext mp w = randomSelect $ wordFrequencyList $ lookupSubmap w mp
+
+build :: Map -> (String, JawsState) -> IO (Maybe JawsState)
+build mp (w, s) = do
+  w' <- selectNext mp w
   case w' of
-    "" -> if (length $ words s) < 4
-          then return $ Nothing
-          else return $ Just s
-    _  -> build f (w', s ++ " " ++ w')
+    "" -> return $ validateFinalState s
+    _  -> build mp (w', s ++ " " ++ w')
 
-initState :: [String] -> IO (String, String)
-initState = (fmap getState . randomSelect)
-  where
-    caps xs = (toUpper <$> take 1 xs) ++ drop 1 xs
-    getState = (,) <$> id <*> caps
-
-execBuild :: [String] -> Map -> IO String
-execBuild seeds mp = do
-  s <- initState seeds
-  maybeString <- build (nextWord mp) s
+build' :: (Seeds, Map) -> IO String
+build' (ss, mp) = do
+  (w, s) <- selectFirst ss
+  maybeString <- build mp (w, s)
   case maybeString of
-    Nothing -> execBuild seeds mp
+    Nothing -> build' (ss, mp)
     Just s' -> return s'
 
-runRepeat :: Int -> Map -> IO String
-runRepeat n mp = do
-  unwords <$> replicateM n (execBuild (keys mp) mp)
+validateFinalState :: JawsState -> Maybe JawsState
+validateFinalState s = case (length $ words s) >= 4 of
+  True  -> Just s
+  False -> Nothing
 
-runRepeatR :: Int -> Map -> IO String
-runRepeatR n mp = do
-  m <- randomIntFromTo 1 n
-  runRepeat m mp
+runRepeat :: Int -> (Seeds, Map) -> IO String
+runRepeat n (ss, mp) = do
+  unwords <$> replicateM n (build' (ss, mp))
 
-runJaws :: Map -> IO String
-runJaws mp = do
-  execBuild (keys mp) mp
+runRepeatR :: Int -> (Seeds, Map) -> IO String
+runRepeatR n (ss, mp) = do
+  n' <- randomIntFromTo 1 n
+  runRepeat n' (ss, mp)
