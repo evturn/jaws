@@ -39,8 +39,8 @@ emptySubmap = M.singleton mempty 0
 lookupSubmap :: String -> Map -> Submap
 lookupSubmap k m = fromMaybe emptySubmap (M.lookup k m)
 
-wordFrequencyList :: Submap -> [String]
-wordFrequencyList = M.foldrWithKey go []
+keysByFrequency :: Submap -> [String]
+keysByFrequency = M.foldrWithKey go []
   where
     go k n xs = xs ++ replicate n k
 

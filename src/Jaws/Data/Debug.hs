@@ -1,10 +1,11 @@
 module Jaws.Data.Debug where
 
 import           Control.Monad.Trans.Class
+import           Control.Monad.Trans.Maybe
 import           Control.Monad.Trans.State
 import           Data.Char                 (toUpper)
-import           Jaws.Data.Mapping         (Map, keys, lookupSubmap, mapping,
-                                            wordFrequencyList)
+import           Jaws.Data.Mapping         (Map, keys, keysByFrequency,
+                                            lookupSubmap, mapping)
 import           Jaws.Data.State           (runRepeat, runRepeatR)
 import           Jaws.System.IO            (fetchSource)
 import           Jaws.System.Random        (randomSelect)
@@ -27,13 +28,48 @@ selectFirst ss = do
   (runStateT $ withStateT caps (jawsT w)) w
 
 selectNext :: Map -> String -> IO String
-selectNext mp w = randomSelect $ wordFrequencyList $ lookupSubmap w mp
+selectNext mp w = randomSelect $ keysByFrequency $ lookupSubmap w mp
+
+isValid :: JawsState -> Maybe JawsState
+isValid  s = case (length $ words s) >= 4 of
+  True  -> Just s
+  False -> Nothing
+
+genSucc :: Map -> (String -> IO String)
+genSucc m w = randomSelect $ keysByFrequency $ lookupSubmap w m
+
+getInit :: Map -> IO (String, String)
+getInit mp = do
+  w <- randomSelect $ keys mp
+  return (w, caps w)
+
+runBuild :: (String -> IO String) -> (String, String) -> IO (String, String)
+runBuild f (w, s) = do
+  case w == "" of
+    True -> return (w, s)
+    False -> do
+      w' <- f w
+      runBuild f (w', s ++ " " ++ w')
+
+updateState :: Map -> (String, String) -> IO (String, String)
+updateState mp st = do
+  runBuild (genSucc mp) st
+
+-- Implementaion:
+--
+--       do
+--         mp <- withMap
+--         st <- getInit
+--         updateState mp st
+--
+-- Then extract the final value
+-- If validation doesn't check out retry until it passes.
 
 build :: Map -> (String, JawsState) -> IO (Maybe JawsState)
 build mp (w, s) = do
   w' <- selectNext mp w
   case w' of
-    "" -> return $ validateFinalState s
+    "" -> return $ isValid s
     _  -> build mp (w', s ++ " " ++ w')
 
 build' :: (Seeds, Map) -> IO String
@@ -61,11 +97,6 @@ getJawsSource = do
 
 caps :: String -> String
 caps w = (toUpper <$> take 1 w) ++ drop 1 w
-
-validateFinalState :: JawsState -> Maybe JawsState
-validateFinalState s = case (length $ words s) >= 4 of
-  True  -> Just s
-  False -> Nothing
 
 jaws :: Int -> String -> IO String
 jaws n loc = do

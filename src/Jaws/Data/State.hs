@@ -5,8 +5,8 @@ import           Control.Monad.Trans.Class
 import           Control.Monad.Trans.State
 import           Data.Char                 (toUpper)
 import           Data.List                 (unwords)
-import           Jaws.Data.Mapping         (Map, keys, lookupSubmap,
-                                            wordFrequencyList)
+import           Jaws.Data.Mapping         (Map, keys, keysByFrequency,
+                                            lookupSubmap)
 import           Jaws.System.Random        (randomIntFromTo, randomSelect)
 
 type Seeds     = [String]
@@ -24,13 +24,13 @@ selectFirst ss = do
   (runStateT $ withStateT caps (jawsT w)) w
 
 selectNext :: Map -> String -> IO String
-selectNext mp w = randomSelect $ wordFrequencyList $ lookupSubmap w mp
+selectNext mp w = randomSelect $ keysByFrequency $ lookupSubmap w mp
 
 build :: Map -> (String, JawsState) -> IO (Maybe JawsState)
 build mp (w, s) = do
   w' <- selectNext mp w
   case w' of
-    "" -> return $ validateFinalState s
+    "" -> return $ isValid s
     _  -> build mp (w', s ++ " " ++ w')
 
 build' :: (Seeds, Map) -> IO String
@@ -41,8 +41,8 @@ build' (ss, mp) = do
     Nothing -> build' (ss, mp)
     Just s' -> return s'
 
-validateFinalState :: JawsState -> Maybe JawsState
-validateFinalState s = case (length $ words s) >= 4 of
+isValid :: JawsState -> Maybe JawsState
+isValid s = case (length $ words s) >= 4 of
   True  -> Just s
   False -> Nothing
 
