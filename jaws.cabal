@@ -24,17 +24,15 @@ extra-source-files:  README.md
 
 library
   exposed-modules:     Jaws
-                     , Jaws.Data
-                     , Jaws.Data.Mapping
-                     , Jaws.Data.State
+                     , Jaws.Mapping
+                     , Jaws.State
                      , Jaws.System
                      , Jaws.System.IO
                      , Jaws.System.Random
                      , Jaws.Twitter
                      , Jaws.Twitter.Author
                      , Jaws.Twitter.Status
-  other-modules:       Jaws.Data.Debug
-  hs-source-dirs:      src
+  other-modules:       Jaws.Debug
   default-language:    Haskell2010
   build-depends:       aeson
                      , base >= 4.7 && < 5
