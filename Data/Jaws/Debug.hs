@@ -1,14 +1,14 @@
-module Jaws.Data.Debug where
+module Data.Jaws.Debug where
 
 import           Control.Monad.Trans.Class
 import           Control.Monad.Trans.Maybe
 import           Control.Monad.Trans.State
 import           Data.Char                 (toUpper)
-import           Jaws.Data.Mapping         (Map, keys, keysByFrequency,
+import           Data.Jaws.Mapping         (Map, keys, keysByFrequency,
                                             lookupSubmap, mapping)
-import           Jaws.Data.State           (runRepeat, runRepeatR)
-import           Jaws.System.IO            (fetchSource)
-import           Jaws.System.Random        (randomSelect)
+import           Data.Jaws.State           (runRepeat, runRepeatR)
+import           Data.Jaws.System.IO       (fetchSource)
+import           Data.Jaws.System.Random   (randomSelect)
 import           System.Environment        (getEnv)
 
 -- | Set the URL env variable in the repl

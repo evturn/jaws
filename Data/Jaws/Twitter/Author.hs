@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Jaws.Twitter.Author where
+module Data.Jaws.Twitter.Author where
 
 import           Data.Aeson
 import           Data.Aeson.Types

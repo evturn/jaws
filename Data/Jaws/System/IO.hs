@@ -1,9 +1,10 @@
-module Jaws.System.IO where
+module Data.Jaws.System.IO where
 
 import           Control.Lens               hiding (mapping)
 import qualified Data.ByteString.Lazy.Char8 as Char8
-import           Jaws.Data                  (keys, mapping, runRepeatR)
-import           Jaws.Twitter
+import           Data.Jaws.Mapping          (keys, mapping)
+import           Data.Jaws.State            (runRepeatR)
+import           Data.Jaws.Twitter
 import           Network.Wreq
 import           System.Environment         (getArgs)
 

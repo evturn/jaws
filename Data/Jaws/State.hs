@@ -1,13 +1,13 @@
-module Jaws.Data.State where
+module Data.Jaws.State where
 
 import           Control.Monad             (replicateM)
 import           Control.Monad.Trans.Class
 import           Control.Monad.Trans.State
 import           Data.Char                 (toUpper)
-import           Data.List                 (unwords)
-import           Jaws.Data.Mapping         (Map, keys, keysByFrequency,
+import           Data.Jaws.Mapping         (Map, keys, keysByFrequency,
                                             lookupSubmap)
-import           Jaws.System.Random        (randomIntFromTo, randomSelect)
+import           Data.Jaws.System.Random   (randomIntFromTo, randomSelect)
+import           Data.List                 (unwords)
 
 type Seeds     = [String]
 type JawsState = String

@@ -1,4 +1,4 @@
-module Jaws.System.Random where
+module Data.Jaws.System.Random where
 
 import           System.Random (Random, getStdRandom, randomR)
 

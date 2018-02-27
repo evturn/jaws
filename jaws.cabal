@@ -23,16 +23,16 @@ cabal-version:       >=1.10
 extra-source-files:  README.md
 
 library
-  exposed-modules:     Jaws
-                     , Jaws.Mapping
-                     , Jaws.State
-                     , Jaws.System
-                     , Jaws.System.IO
-                     , Jaws.System.Random
-                     , Jaws.Twitter
-                     , Jaws.Twitter.Author
-                     , Jaws.Twitter.Status
-  other-modules:       Jaws.Debug
+  exposed-modules:     Data.Jaws
+                     , Data.Jaws.Mapping
+                     , Data.Jaws.State
+                     , Data.Jaws.System
+                     , Data.Jaws.Twitter
+  other-modules:       Data.Jaws.Debug
+                     , Data.Jaws.System.IO
+                     , Data.Jaws.System.Random
+                     , Data.Jaws.Twitter.Author
+                     , Data.Jaws.Twitter.Status
   default-language:    Haskell2010
   build-depends:       aeson
                      , base >= 4.7 && < 5

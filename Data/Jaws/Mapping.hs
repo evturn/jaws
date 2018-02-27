@@ -1,4 +1,4 @@
-module Jaws.Data.Mapping where
+module Data.Jaws.Mapping where
 
 import qualified Data.List        as L
 import qualified Data.Map         as M
