@@ -1,18 +1,14 @@
 module Data.Jaws.Mapping where
 
-import qualified Data.List        as L
-import qualified Data.Map         as M
-import           Data.Maybe       (fromMaybe)
-import           Text.Show.Pretty (pPrint, ppShow)
+import qualified Data.List  as L
+import qualified Data.Map   as M
+import           Data.Maybe (fromMaybe)
 
 type MP a     = M.Map String a
 type Map      = MP Submap
 type Submap   = MP Int
 
 newtype Mapping a = Mapping (MP a)
-
-instance Show a => Show (Mapping a) where
-  show = prettyShow
 
 mapping :: String -> Map
 mapping = (foldr go M.empty) . wordsByLine
@@ -50,9 +46,3 @@ keys = M.foldrWithKey extractKeys []
     extractKeys k sp ks = case M.notMember "" sp of
       True  -> k : ks
       False -> ks
-
-prettyPrint :: Show a => a -> IO ()
-prettyPrint = pPrint
-
-prettyShow :: Show a => a -> String
-prettyShow = ppShow

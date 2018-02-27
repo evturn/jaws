@@ -27,12 +27,12 @@ library
                      , Data.Jaws.Mapping
                      , Data.Jaws.State
                      , Data.Jaws.System
-                     , Data.Jaws.Twitter
-  other-modules:       Data.Jaws.Debug
                      , Data.Jaws.System.IO
                      , Data.Jaws.System.Random
+                     , Data.Jaws.Twitter
                      , Data.Jaws.Twitter.Author
                      , Data.Jaws.Twitter.Status
+  other-modules:       Data.Jaws.Debug
   default-language:    Haskell2010
   build-depends:       aeson
                      , base >= 4.7 && < 5
@@ -44,7 +44,7 @@ library
                      , lens
                      , mtl
                      , network-uri >= 2.6
-                     , pretty-show
+                     , prints
                      , random
                      , text
                      , transformers
