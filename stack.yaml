@@ -2,4 +2,4 @@ resolver: lts-10.3
 packages:
 - .
 extra-deps:
-- prints-0.1.0.1
+- prints-0.1.0.2

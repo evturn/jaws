@@ -1,14 +1,18 @@
 module Data.Jaws.Mapping where
 
-import qualified Data.List  as L
-import qualified Data.Map   as M
-import           Data.Maybe (fromMaybe)
+import qualified Data.List   as L
+import qualified Data.Map    as M
+import           Data.Maybe  (fromMaybe)
+import           Text.Prints
 
 type MP a     = M.Map String a
 type Map      = MP Submap
 type Submap   = MP Int
 
 newtype Mapping a = Mapping (MP a)
+
+instance Show a => Show (Mapping a) where
+  show = strPrints
 
 mapping :: String -> Map
 mapping = (foldr go M.empty) . wordsByLine
